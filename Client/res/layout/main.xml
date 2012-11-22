@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" 
+    android:id="@+id/parent"
+    >
+
+    <EditText
+        android:id="@+id/hostinput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/host_hint" 
+        android:inputType="number|text"
+        android:layout_marginTop="30dp"/>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="20dp">
+
+        <Button
+            android:id="@+id/connetct"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/connect" 
+            android:enabled="false"/>
+
+        <Button
+            android:id="@+id/disconnetct"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/disconnect"
+            android:enabled="false" />
+    </LinearLayout>
+
+</LinearLayout>
