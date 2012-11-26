@@ -26,13 +26,12 @@
             android:layout_height="wrap_content"
             android:text="@string/connect" 
             android:enabled="false"/>
-
-        <Button
-            android:id="@+id/disconnetct"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/disconnect"
-            android:enabled="false" />
     </LinearLayout>
+    <ImageView android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:visibility="gone"
+        android:src="@drawable/test"/>
 
 </LinearLayout>

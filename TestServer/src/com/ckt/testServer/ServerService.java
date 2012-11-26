@@ -74,7 +74,8 @@ public class ServerService extends Service{
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 msg = "user" +this.socket.getInetAddress() + "come toal:"
                     +mList.size();
-                this.sendmsg();
+                System.out.println("yadong msg="+msg);
+//                this.sendmsg();
             } catch (IOException e) {
                 e.printStackTrace();
             }
