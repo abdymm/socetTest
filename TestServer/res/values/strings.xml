@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="hello">Hello World, TestServerActivity!</string>
+    <string name="client_list">Client list:</string>
     <string name="app_name">TestServer</string>
+    <string name="no_client">No Client connect</string>
 
 </resources>
