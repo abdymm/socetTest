@@ -65,6 +65,7 @@ public class ServerService extends Service {
 				String msg = String.format(CLIENT_IS_CONNECTED, client
 						.getInetAddress().toString());
 				sendErrorMessageAndDisconnect(client, msg);
+				System.out.println("yaodong"+msg);
 				return true;
 			}
 		}
@@ -100,7 +101,7 @@ public class ServerService extends Service {
 			
 		};
 	};
-	
+
 	private class ClientReciver implements Runnable {
 		@Override
 		public void run() {
@@ -113,9 +114,9 @@ public class ServerService extends Service {
 					while (true) {
 						client = mServer.accept();
 						if (!isClientConnected(client)) {
-							mClientList.add(new Client(client,mClientList.size()));
 							mListener.onNewClientConnect(client
 									.getInetAddress().toString());
+							mClientList.add(new Client(client,mClientList.size()));
 							mExecutorService.execute(new ClientServer(client));
 						}
 					}
@@ -156,28 +157,46 @@ public class ServerService extends Service {
 				while (true) {
 					if ((msg = in.readLine()) != null) {
 						if (EXIT_COMMAND.equals(msg)) {
-							mClientList.remove(socket);
-							mListener.onClientDisconnect(socket
-									.getInetAddress().toString());
-							in.close();
-							socket.close();
+							onClientDisconnect(socket);
 							break;
 						} else {
+							//TODO get msssage from client
+							for(Client client : mClientList){
+								if(!client.getmInternetAddress().equals(socket.getInetAddress().toString())){
+									sendmsg(client.getmSocket(),msg);
+								}
+							}
 							msg = socket.getInetAddress() + ":" + msg;
-							System.out.println("yadong ------ msg = " + msg);
+							System.out.println("yadong "+msg);
 						}
-					}
+					}else{
+						onClientDisconnect(socket);
+						break;
+					}	
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-
-		public void sendmsg() {
+		
+		private void onClientDisconnect(Socket clients) throws IOException{
+			mClientList.remove(socket);
+			for(Client client : mClientList){
+				if (client.getmInternetAddress().equals(socket.getInetAddress().toString())) {
+					mClientList.remove(client);
+				}
+			}
+			mListener.onClientDisconnect(socket
+					.getInetAddress().toString());
+			in.close();
+			socket.close();
+		}
+		
+		public void sendmsg(Socket clients,String msg) {
 			PrintWriter pout = null;
 			try {
 				pout = new PrintWriter(new BufferedWriter(
-						new OutputStreamWriter(socket.getOutputStream())), true);
+						new OutputStreamWriter(clients.getOutputStream())), true);
 				pout.println(msg);
 			} catch (IOException e) {
 				e.printStackTrace();

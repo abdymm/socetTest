@@ -5,26 +5,51 @@ import java.net.Socket;
 
 import android.util.Log;
 
+/**
+ * Client class. 
+ * @author Administrator
+ *
+ */
 public class Client {
 	public static final int NEIGHBOUR_LEFT = 0;
 	public static final int NEIGHBOUR_TOP = 1;
 	public static final int NEIGHBOUR_RIGHT = 2;
 	public static final int NEIGHBOUR_BOTTOM = 3;
-	private static final String TAG = "Server_Client";
+	private static final String TAG  = "Server:Client";
 	
+	//client index in server.
 	private int mIndex;
 	private Socket mSocket;
 	private float mScreenWidth = -1;
 	private float mScreenHight = -1;
-	private Socket[] mNeighbours = new Socket[4];
+	private String[] mNeighbours = new String[4];
+	private String mInternetAddress;
 	
 	@SuppressWarnings("unused")
 	private Client(){}
 	
-	public Client(Socket socket,int index){
+	public Client(Socket socket,int index) throws Exception{
+		if(socket == null){
+			Log.e(TAG, "socket can not be null");
+			throw new Exception("socket can not be null");
+		}
 		mSocket = socket;
 		mIndex = index;
+		mInternetAddress = socket.getInetAddress().toString();
 	}
+	
+	public String getNeighbour(int direction){
+		if(direction < NEIGHBOUR_LEFT || direction > NEIGHBOUR_BOTTOM){
+			Log.e(TAG, "direction error");
+			return null;
+		}
+		return mNeighbours[direction];
+	}
+	
+	public String getmInternetAddress() {
+		return mInternetAddress;
+	}
+	
 	public int getmIndex() {
 		return mIndex;
 	}
@@ -41,26 +66,12 @@ public class Client {
 	public Socket getmSocket() {
 		return mSocket;
 	}
-	
-	public void addNeighbourLeft(Socket neighbour){
-		addNeighbour(neighbour,NEIGHBOUR_LEFT);
-	}
-	public void addNeighbourRight(Socket neighbour){
-		addNeighbour(neighbour,NEIGHBOUR_RIGHT);
-	}
-	public void addNeighbourTop(Socket neighbour){
-		addNeighbour(neighbour,NEIGHBOUR_TOP);
-	}
-	public void addNeighbourBottom(Socket neighbour){
-		addNeighbour(neighbour,NEIGHBOUR_BOTTOM);
-	}
-	
-	public void addNeighbour(Socket neighbour,int direction){
-		if(direction > NEIGHBOUR_BOTTOM || direction < NEIGHBOUR_LEFT){
-			Log.e(TAG, "have no this direction");
-		}else{
-			mNeighbours[direction] = neighbour;
+
+	public void addNeighbour(String neighbour, int direction) {
+		if(direction < NEIGHBOUR_LEFT || direction > NEIGHBOUR_BOTTOM){
+			Log.e(TAG, "direction error");
 		}
+		mNeighbours[direction] = neighbour;
 	}
 	
 	public void closeSocket() throws IOException{

@@ -13,7 +13,9 @@ import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 import com.ckt.testServer.ServerService.ServiceListener;
@@ -27,6 +29,7 @@ public class MainActivity extends Activity implements ServiceListener{
 	private ListView mClientListView;
 	private TextView mNoClientView;
 	private ServerService serverService;
+	private ArrayAdapter<String> mArrayAdapter;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -36,16 +39,15 @@ public class MainActivity extends Activity implements ServiceListener{
 		mClientListView = (ListView) findViewById(R.id.clients);
 		mClientList = new ArrayList<String>();
 		
-		
+		mArrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, mClientList);
+		mClientListView.setAdapter(mArrayAdapter);
 		Intent intent = new Intent(MainActivity.this, ServerService.class);
 		bindService(intent,new ServerServiceConnection(),Context.BIND_AUTO_CREATE);
-		mHandler = new Handler(){
-			
-		};
 	}
 	private Handler mHandler = new Handler(){
 		@Override
 		public void handleMessage(Message msg) {
+			Log.v(TAG, "onHandleMessage msg = "+msg.what);
 			switch (msg.what) {
 			case MSG_SERVICE_CONNECT:
 				onNewClientConnectOnUI();
@@ -74,11 +76,16 @@ public class MainActivity extends Activity implements ServiceListener{
 	private void onNewClientConnectOnUI(){
 		mNoClientView.setVisibility(View.GONE);
 		mClientListView.setVisibility(View.VISIBLE);
+		mArrayAdapter.notifyDataSetChanged();
+		mClientListView.setAdapter(mArrayAdapter);
 	}
 	private void onClientDisconnectOnUI(){
 		if (mClientList.size() <= 0) {
 			mNoClientView.setVisibility(View.VISIBLE);
 			mClientListView.setVisibility(View.GONE);
+		}else{
+			mArrayAdapter.notifyDataSetChanged();
+			mClientListView.setAdapter(mArrayAdapter);
 		}
 	}
 	
@@ -95,7 +102,8 @@ public class MainActivity extends Activity implements ServiceListener{
 
 	@Override
 	public void onClientDisconnect(String ipAddress) {
-		ipAddress = ipAddress.replaceAll("/", "");
+		Log.i(TAG, "ipAddress " + ipAddress + "connect!!");
 		mClientList.remove(mClientList.indexOf(ipAddress));
+		mHandler.sendEmptyMessage(MSG_SERVICE_DISCONNECT);
 	}
 }

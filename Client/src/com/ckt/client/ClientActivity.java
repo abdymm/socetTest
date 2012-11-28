@@ -32,6 +32,8 @@ import com.ckt.client.ClientService.ClientBinder;
 public class ClientActivity extends Activity implements ClienServiceListener,OnClickListener{
 	private static final int MSG_CONECT_SUCCESS = 1;
 	private static final int MSG_DISCONECT_SUCCESS = 2;
+	private static final int MSG_GET_COMMAND = 3;
+	
 	private Button mConnectBtn;
 	private EditText mHostIp;
 	private ClientService mClientService;
@@ -99,6 +101,10 @@ public class ClientActivity extends Activity implements ClienServiceListener,OnC
 			case MSG_DISCONECT_SUCCESS:
 				onDisConnectOnUI();
 				break;
+			case MSG_GET_COMMAND:
+				int positions [] = (int []) msg.obj;
+				changePosition(positions);
+				break;
 			default:
 				break;
 			}
@@ -138,8 +144,16 @@ public class ClientActivity extends Activity implements ClienServiceListener,OnC
 	
 	@Override
 	public void getCommand(String command) {
-		// TODO Auto-generated method stub
-		
+		System.out.println("Command is ==============="+command);
+		String [] positionStr = command.split("\\|");
+		int [] positions = new int[positionStr.length];
+		for(int index = 0;index < positionStr.length;index++){
+			positions[index] = Integer.parseInt(positionStr[index]);
+		}
+		Message message = new Message();
+		message.what = MSG_GET_COMMAND;
+		message.obj = positions;
+		mHandler.sendMessage(message);
 	}
 	public void onDisConnectOnUI(){
 		mHostIp.setVisibility(View.VISIBLE);
@@ -179,7 +193,10 @@ public class ClientActivity extends Activity implements ClienServiceListener,OnC
 		
 	}
 	
-
+	public void changePosition(int positions[]){
+		mImage.layout(positions[0], positions[1], positions[2], positions[3]);
+	}
+	
 	class ImageTouchListener implements OnTouchListener{
 		private float startX = 0;
 		private float startY = 0;

@@ -20,6 +20,7 @@ public class ClientService extends Service{
 	private static final String TAG = "ClientService";
 	private static final int SERVER_PORT = 10999;
 	private static final String EXIT_COMMAND = "exit";
+	private static final String CLIENT_ERROR_HEAD = "error:";
 	
 	private ClientBinder binder = new ClientBinder();
 	private List<ClienServiceListener> mListeners;
@@ -120,7 +121,10 @@ public class ClientService extends Service{
 			while (true) {
 				if (socket.isConnected() && !socket.isInputShutdown()
 						&& (mContent = in.readLine()) != null) {
-					mContent += "\n";
+					if(mContent.startsWith(CLIENT_ERROR_HEAD)){
+						Log.e(TAG, mContent);
+						//TODO server return error.
+					}
 					for(ClienServiceListener listener:mListeners){
 						listener.getCommand(mContent);
 					}
