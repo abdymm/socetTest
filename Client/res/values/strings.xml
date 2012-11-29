@@ -6,4 +6,8 @@
 	<string name="host_hint">Input Host</string>
 	<string name="connect">Connect</string>
 	<string name="disconnect">Disconnect</string>
+	<string name="start_server">Start server</string>
+	<string name="client_config">Client configuration</string>
+	<string name="server_started">Server is started!</string>
+	<string name="close_server">Close server</string>
 </resources>

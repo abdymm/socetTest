@@ -11,6 +11,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -24,21 +25,26 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import com.ckt.client.R;
+import android.widget.Toast;
 
 import com.ckt.client.ClientService.ClienServiceListener;
 import com.ckt.client.ClientService.ClientBinder;
+import com.ckt.client.ServerService.ServerBinder;
+import com.ckt.client.ServerService.ServerServiceListener;
 
-public class ClientActivity extends Activity implements ClienServiceListener,OnClickListener{
+public class ClientActivity extends Activity implements ClienServiceListener,OnClickListener,ServerServiceListener{
 	private static final int MSG_CONECT_SUCCESS = 1;
 	private static final int MSG_DISCONECT_SUCCESS = 2;
 	private static final int MSG_GET_COMMAND = 3;
+	private static final String TAG = "ClientActivity";
 	
 	private Button mConnectBtn;
 	private EditText mHostIp;
 	private ClientService mClientService;
+	private ServerService mServerService;
 	private LinearLayout layout;
-	private boolean mIsConnect;
+	private boolean mIsClientServiceConnect;
+	private boolean mIsServerServiceStarted;
 	private ImageView mImage;
 	
 	public TextWatcher watcher = new TextWatcher() {
@@ -58,15 +64,21 @@ public class ClientActivity extends Activity implements ClienServiceListener,OnC
 		}
 	};
 	
-	public ServiceConnection connection = new ServiceConnection() {
+	public ServiceConnection mConnection = new ServiceConnection() {
 		
 		@Override
-		public void onServiceDisconnected(ComponentName name) {	}
-		
+		public void onServiceDisconnected(ComponentName name) {
+		}
+			
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
-			mClientService = ((ClientBinder) service).getService();
-			mClientService.rejestListener(ClientActivity.this);
+			if(ClientService.class.getName().equals(name.getClassName())){
+				mClientService = ((ClientBinder) service).getService();
+				mClientService.rejestListener(ClientActivity.this);
+			}else if(ServerService.class.getName().equals(name.getClassName())){
+				mServerService = ((ServerBinder)service).getService();
+				mServerService.registeLisener(ClientActivity.this);
+			}
 		}
 	};
 	
@@ -88,7 +100,9 @@ public class ClientActivity extends Activity implements ClienServiceListener,OnC
 		mImage = (ImageView) findViewById(R.id.imageView);
 		mImage.setOnTouchListener(new ImageTouchListener());
 		Intent intent = new Intent(this,ClientService.class);
-		bindService(intent,connection,Context.BIND_AUTO_CREATE);
+		bindService(intent,mConnection,Context.BIND_AUTO_CREATE);
+		Intent serverIntent = new Intent(ClientActivity.this,ServerService.class);
+		bindService(serverIntent, mConnection, Context.BIND_AUTO_CREATE);
     }
     
     
@@ -112,19 +126,18 @@ public class ClientActivity extends Activity implements ClienServiceListener,OnC
     };
     
     @Override
-    protected void onStop() {
-    	super.onStop();
-    	unbindService(connection);
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
     	getMenuInflater().inflate(R.menu.client_activity_menu, menu);
     	return super.onCreateOptionsMenu(menu);
     }
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-    	menu.findItem(R.id.menu_disconnect).setVisible(mIsConnect);
+    	menu.findItem(R.id.menu_disconnect).setVisible(mIsClientServiceConnect);
+    	//if server is started , we should not show the start server item.
+    	menu.findItem(R.id.menu_start_server).setVisible(!mIsServerServiceStarted);
+    	//server is not started , need not show the end item.
+    	menu.findItem(R.id.menu_end_server).setVisible(mIsServerServiceStarted);
+    	
     	return super.onPrepareOptionsMenu(menu);
     }
     
@@ -136,11 +149,42 @@ public class ClientActivity extends Activity implements ClienServiceListener,OnC
 		}
 		
 	}
-	public void disConnect(MenuItem item){
-		if(null != mClientService){
-			mClientService.disConnect();
+	public void onItemClick(MenuItem item){
+		Log.d(TAG, "on menu item click item = "+item.getItemId());
+		switch (item.getItemId()) {
+		case R.id.menu_disconnect:
+			if(null != mClientService){
+				mClientService.disConnect();
+			}
+			break;
+		case R.id.menu_client_config:
+			
+
+			break;
+		case R.id.menu_start_server:
+			mServerService.startServer();
+			Toast.makeText(ClientActivity.this, R.string.server_started, Toast.LENGTH_SHORT).show();
+			mIsServerServiceStarted = true;
+			break;
+		case R.id.menu_end_server:
+			mServerService.init();
+			mIsServerServiceStarted = false;
+			break;
+		default:
+			Log.e(TAG, "have no this item id!!!");
+			break;
 		}
+		
 	}
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		if(mServerService != null)
+			mServerService.unbindService(mConnection);
+		if(mClientService != null)
+			mClientService.unbindService(mConnection);
+	}
+	
 	
 	@Override
 	public void getCommand(String command) {
@@ -168,7 +212,7 @@ public class ClientActivity extends Activity implements ClienServiceListener,OnC
 		Message message = new Message();
 		message.what = MSG_DISCONECT_SUCCESS;
 		mHandler.sendMessage(message);
-		mIsConnect = false;
+		mIsClientServiceConnect = false;
 	}
 	
 	private void onConnectSuccessOnUI(){
@@ -182,7 +226,7 @@ public class ClientActivity extends Activity implements ClienServiceListener,OnC
 		Message message = new Message();
 		message.what = MSG_CONECT_SUCCESS;
 		mHandler.sendMessage(message);
-		mIsConnect = true;
+		mIsClientServiceConnect = true;
 		InputMethodManager m=(InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE); 
 		m.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);  
 	}
@@ -222,27 +266,6 @@ public class ClientActivity extends Activity implements ClienServiceListener,OnC
 			    int right = v.getRight() + dx;
 			    int top = v.getTop() + dy;
 			    int bottom = v.getBottom() + dy;
-//			    // ³¬³öÆÁÄ»¼ì²â
-//			    if (left < 0)
-//			    {
-//			     left = 0;
-//			     right = v.getWidth();
-//			    }
-//			    if (right > screenWidth)
-//			    {
-//			     right = screenWidth;
-//			     left = screenWidth - v.getWidth();
-//			    }
-//			    if (top < 0)
-//			    {
-//			     top = 0;
-//			     bottom = v.getHeight();
-//			    }
-//			    if (bottom > screenHeight)
-//			    {
-//			     bottom = screenHeight;
-//			     top = screenHeight - v.getHeight();
-//			    }
 			    v.layout(left, top, right, bottom);
 			    startX = event.getRawX();
 			    startY = event.getRawY();
@@ -253,6 +276,17 @@ public class ClientActivity extends Activity implements ClienServiceListener,OnC
 			  }
 			  return false;
 		}
+		
+	}
+
+	@Override
+	public void onNewClientConnect(String ipAddress) {
+
+	}
+
+	@Override
+	public void onClientDisconnect(String ipAddress) {
+		// TODO Auto-generated method stub
 		
 	}
 

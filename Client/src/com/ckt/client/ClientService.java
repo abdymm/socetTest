@@ -7,8 +7,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
 
 import android.app.Service;
 import android.content.Intent;
@@ -23,7 +21,7 @@ public class ClientService extends Service{
 	private static final String CLIENT_ERROR_HEAD = "error:";
 	
 	private ClientBinder binder = new ClientBinder();
-	private List<ClienServiceListener> mListeners;
+	private ClienServiceListener mListener;
 	private Socket socket;
     private BufferedReader in = null;
     private PrintWriter out = null;
@@ -40,7 +38,6 @@ public class ClientService extends Service{
 	public void onCreate() {
 		super.onCreate();
 		Log.i(TAG,"on ClientServer created");
-		mListeners = new ArrayList<ClientService.ClienServiceListener>();
 	}
 	public void startConnect(String host){
 		mHost = host;
@@ -51,9 +48,7 @@ public class ClientService extends Service{
 	public void disConnect(){
 		sendMessage(EXIT_COMMAND);
 		init();
-		for(ClienServiceListener listener:mListeners){
-			listener.onDisconnect();
-		}
+		mListener.onDisconnect();
 	}
 	
 	Runnable connect = new Runnable() {
@@ -67,16 +62,14 @@ public class ClientService extends Service{
 						socket.getInputStream()));
 				out = new PrintWriter(new BufferedWriter(
 						new OutputStreamWriter(socket.getOutputStream())), true);
-				for(ClienServiceListener listener:mListeners){
-					listener.onConnectSuccess();
-				}
+				mListener.onConnectSuccess();
 				startLisen();
 			} catch (IOException e) {
+				System.out.println("222222222222222222");
 				e.printStackTrace();
-				for(ClienServiceListener listener:mListeners){
-					listener.onConnectFail(e.getMessage());
-				}
+				mListener.onConnectFail(e.getMessage());
 			}
+			System.out.println("3333333333333333333");
 		}
 	};
 	
@@ -119,29 +112,27 @@ public class ClientService extends Service{
 	public void startLisen() {
 		try {
 			while (true) {
-				if (socket.isConnected() && !socket.isInputShutdown()
+				if (socket!= null && socket.isConnected() && !socket.isInputShutdown()
 						&& (mContent = in.readLine()) != null) {
-					if(mContent.startsWith(CLIENT_ERROR_HEAD)){
+					if (mContent.startsWith(CLIENT_ERROR_HEAD)) {
 						Log.e(TAG, mContent);
-						//TODO server return error.
+						// TODO server return error.
 					}
-					for(ClienServiceListener listener:mListeners){
-						listener.getCommand(mContent);
-					}
-				}else if(!socket.isConnected() || socket.isInputShutdown()){
-					for(ClienServiceListener listener:mListeners){
-						listener.onDisconnect();
-					}
+					mListener.getCommand(mContent);
+				}else{
+					mListener.onDisconnect();
+					break;
 				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
+			System.out.println("111111111111111");
 		}
 	}
 	
 	//regist listener
 	public void rejestListener(ClienServiceListener listener){
-		mListeners.add(listener);
+		mListener = listener;
 	}
 	
 	interface ClienServiceListener{

@@ -1,7 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:id="@+id/menu_disconnect"
+
+    <item
+        android:id="@+id/menu_disconnect"
         android:title="@string/disconnect"
-        android:onClick="disConnect"/>
+        android:onClick="onItemClick"/>
+    <item
+        android:id="@+id/menu_start_server"
+        android:title="@string/start_server"
+        android:onClick="onItemClick"/>
+    <item
+        android:id="@+id/menu_client_config"
+        android:title="@string/client_config"
+        android:onClick="onItemClick"/>
+    <item
+        android:id="@+id/menu_end_server"
+        android:title="@string/close_server"
+        android:onClick="onItemClick"/>
+    
 
 </menu>
