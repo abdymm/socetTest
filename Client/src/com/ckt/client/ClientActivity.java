@@ -36,6 +36,7 @@ public class ClientActivity extends Activity implements ClienServiceListener,OnC
 	private static final int MSG_CONECT_SUCCESS = 1;
 	private static final int MSG_DISCONECT_SUCCESS = 2;
 	private static final int MSG_GET_COMMAND = 3;
+	private static final int MSG_CONNECT_FAIL = 4;
 	private static final String TAG = "ClientActivity";
 	
 	private Button mConnectBtn;
@@ -119,6 +120,13 @@ public class ClientActivity extends Activity implements ClienServiceListener,OnC
 				int positions [] = (int []) msg.obj;
 				changePosition(positions);
 				break;
+			case MSG_CONNECT_FAIL:
+				String message = (String) msg.obj;
+				String errorFormat = getResources().getString(R.string.connect_fail);
+				errorFormat = String.format(errorFormat, mHostIp.getText().toString());
+				Log.e(TAG, message);
+				Toast.makeText(ClientActivity.this, errorFormat, Toast.LENGTH_SHORT).show();
+				break;
 			default:
 				break;
 			}
@@ -162,6 +170,8 @@ public class ClientActivity extends Activity implements ClienServiceListener,OnC
 
 			break;
 		case R.id.menu_start_server:
+			System.out.println("11111111111111111111111111111122222222222222222222222222");
+			System.out.println("mServerService == null"+(mServerService==null));
 			mServerService.startServer();
 			Toast.makeText(ClientActivity.this, R.string.server_started, Toast.LENGTH_SHORT).show();
 			mIsServerServiceStarted = true;
@@ -179,10 +189,7 @@ public class ClientActivity extends Activity implements ClienServiceListener,OnC
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		if(mServerService != null)
-			mServerService.unbindService(mConnection);
-		if(mClientService != null)
-			mClientService.unbindService(mConnection);
+		unbindService(mConnection);
 	}
 	
 	
@@ -233,7 +240,10 @@ public class ClientActivity extends Activity implements ClienServiceListener,OnC
 
 	@Override
 	public void onConnectFail(String string) {
-		// TODO Auto-generated method stub
+		Message message = new Message();
+		message.what = MSG_CONNECT_FAIL;
+		message.obj = string;
+		mHandler.sendMessage(message);
 		
 	}
 	

@@ -65,11 +65,9 @@ public class ClientService extends Service{
 				mListener.onConnectSuccess();
 				startLisen();
 			} catch (IOException e) {
-				System.out.println("222222222222222222");
 				e.printStackTrace();
 				mListener.onConnectFail(e.getMessage());
 			}
-			System.out.println("3333333333333333333");
 		}
 	};
 	
@@ -126,7 +124,6 @@ public class ClientService extends Service{
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-			System.out.println("111111111111111");
 		}
 	}
 	

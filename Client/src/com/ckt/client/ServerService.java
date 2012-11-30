@@ -38,9 +38,6 @@ public class ServerService extends Service {
 
 	@Override
 	public void onCreate() {
-		System.out.println("yadong onservice start");
-		mMainThread = new Thread(new ClientReciver());
-		mMainThread.start();
 		super.onCreate();
 	}
 
@@ -49,15 +46,28 @@ public class ServerService extends Service {
 		super.onDestroy();
 		init();
 	}
+	public void startServer() {
+		if(mMainThread == null){
+			mMainThread = new Thread(new ClientReciver());
+			mMainThread.start();
+		}else{
+			System.out.println("yadong error !!!! mManiThread != null");
+		}
+	}
 	
 	public void init(){
 		try {
 			for (Client client : mClientList) {
 				client.closeSocket();
 			}
-			if(mServer != null)
-			mServer.close();
-			//TODO THREAD .
+			if(mServer != null){
+				mServer.close();
+			}
+			if(mExecutorService != null){
+				mExecutorService.shutdown();
+			}
+			mMainThread = null;
+			mClientList = new ArrayList<Client>();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -243,4 +253,6 @@ public class ServerService extends Service {
 		}
 		
 	}
+
+
 }
