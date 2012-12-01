@@ -44,9 +44,11 @@ public class ClientActivity extends Activity implements ClienServiceListener,OnC
 	private ClientService mClientService;
 	private ServerService mServerService;
 	private LinearLayout layout;
-	private boolean mIsClientServiceConnect;
-	private boolean mIsServerServiceStarted;
 	private ImageView mImage;
+	//mark the client service is connect .
+	private boolean mIsClientServiceConnect;
+	//mark the server is started . not the server service.
+	private boolean mIsServerServiceStarted;
 	
 	public TextWatcher watcher = new TextWatcher() {
 		@Override
@@ -153,6 +155,7 @@ public class ClientActivity extends Activity implements ClienServiceListener,OnC
 	@Override
 	public void onClick(View v) {
 		if (v.equals(mConnectBtn) && null != mClientService) {
+			//start client service connect.
 			mClientService.startConnect(mHostIp.getText().toString());
 		}
 		
@@ -162,21 +165,22 @@ public class ClientActivity extends Activity implements ClienServiceListener,OnC
 		switch (item.getItemId()) {
 		case R.id.menu_disconnect:
 			if(null != mClientService){
+				//disconnect the client service connection.
 				mClientService.disConnect();
 			}
 			break;
 		case R.id.menu_client_config:
-			
+			//TODO .. config client position.
 
 			break;
 		case R.id.menu_start_server:
-			System.out.println("11111111111111111111111111111122222222222222222222222222");
-			System.out.println("mServerService == null"+(mServerService==null));
+			//start server. when server service is binding.
 			mServerService.startServer();
 			Toast.makeText(ClientActivity.this, R.string.server_started, Toast.LENGTH_SHORT).show();
 			mIsServerServiceStarted = true;
 			break;
 		case R.id.menu_end_server:
+			//end the server
 			mServerService.init();
 			mIsServerServiceStarted = false;
 			break;
@@ -195,7 +199,7 @@ public class ClientActivity extends Activity implements ClienServiceListener,OnC
 	
 	@Override
 	public void getCommand(String command) {
-		System.out.println("Command is ==============="+command);
+		//handle message
 		String [] positionStr = command.split("\\|");
 		int [] positions = new int[positionStr.length];
 		for(int index = 0;index < positionStr.length;index++){
@@ -296,7 +300,7 @@ public class ClientActivity extends Activity implements ClienServiceListener,OnC
 
 	@Override
 	public void onClientDisconnect(String ipAddress) {
-		// TODO Auto-generated method stub
+		
 		
 	}
 

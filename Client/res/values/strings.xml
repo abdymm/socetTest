@@ -11,4 +11,5 @@
 	<string name="server_started">Server is started!</string>
 	<string name="close_server">Close server</string>
 	<string name="connect_fail">Connect to %s fail.</string>
+	<string name="client_list_full">Client is full.</string>
 </resources>

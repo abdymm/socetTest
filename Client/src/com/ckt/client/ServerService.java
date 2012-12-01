@@ -22,6 +22,11 @@ public class ServerService extends Service {
 	private static final int PORT = 10999;
 	private static final String EXIT_COMMAND = "exit";
 	private static final String CLIENT_ERROR_HEAD = "error:";
+	private static final String CLIENT_WELCOME_HEAD = "welcome:";
+	private static final String CLIENT_SEND_FILE = "file:";
+	private static final String CLIENT_CHANGE_POSITION = "position:";
+	private static final int MAX_CLIENT = Client.COLORS.length;
+	
 	private static final String CLIENT_IS_CONNECTED = "Client with ip:%s is connect";
 
 	private List<Client> mClientList = new ArrayList<Client>();
@@ -58,7 +63,7 @@ public class ServerService extends Service {
 	public void init(){
 		try {
 			for (Client client : mClientList) {
-				client.closeSocket();
+				client.closeClient();
 			}
 			if(mServer != null){
 				mServer.close();
@@ -76,7 +81,7 @@ public class ServerService extends Service {
 	private boolean isClientConnected(Socket client) {
 		for (Client socket : mClientList) {
 			if (client.getInetAddress().toString()
-					.equals(socket.getmSocket().getInetAddress().toString())) {
+					.equals(socket.getmInternetAddress())) {
 				String msg = String.format(CLIENT_IS_CONNECTED, client
 						.getInetAddress().toString());
 				sendErrorMessageAndDisconnect(client, msg);
@@ -111,7 +116,23 @@ public class ServerService extends Service {
 		mListeners.registerListener(listener);
 	}
 	
-
+	
+	private boolean isClientFull(Socket client){
+		if(mClientList.size() >= MAX_CLIENT){
+			String message = getResources().getString(R.string.client_list_full);
+			sendErrorMessageAndDisconnect(client, message);
+		}
+		return false;
+	}
+	
+	private void sendWelcomeMessage(Client client){
+		//send welcome message to client
+		StringBuilder sb = new StringBuilder();
+		sb.append(CLIENT_WELCOME_HEAD);
+		sb.append(client.getmIndex());
+		client.sendMessage(sb.toString());
+	}
+	
 	private class ClientReciver implements Runnable {
 		@Override
 		public void run() {
@@ -123,11 +144,14 @@ public class ServerService extends Service {
 					Socket client = null;
 					while (true) {
 						client = mServer.accept();
-						if (!isClientConnected(client)) {
+						//judge the client list is full or the client with a exist ip.
+						if (!isClientFull(client) && !isClientConnected(client)) {
 							mListeners.onNewClientConnect(client
 									.getInetAddress().toString());
-							mClientList.add(new Client(client,mClientList.size()));
-							mExecutorService.execute(new ClientServer(client));
+							Client clientc = new Client(client,mClientList.size());
+							mClientList.add(clientc);
+							mExecutorService.execute(new ClientServer(clientc));
+							sendWelcomeMessage(clientc);
 						}
 					}
 				} catch (Exception e) {
@@ -144,21 +168,15 @@ public class ServerService extends Service {
 	}
 
 	class ClientServer implements Runnable {
-		private Socket socket;
+		private Client client;
 		private BufferedReader in = null;
 		private String msg = "";
 
-		public ClientServer(Socket socket) {
-			this.socket = socket;
-			try {
-				in = new BufferedReader(new InputStreamReader(
-						socket.getInputStream()));
-				msg = "user" + this.socket.getInetAddress() + "come toal:"
-						+ mClientList.size();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-
+		public ClientServer(Client client) {
+			this.client = client;
+			in = client.getBufferedReader();
+			msg = "user" + this.client.getmInternetAddress() + "come toal:"
+					+ mClientList.size();
 		}
 
 		@Override
@@ -167,20 +185,20 @@ public class ServerService extends Service {
 				while (true) {
 					if ((msg = in.readLine()) != null) {
 						if (EXIT_COMMAND.equals(msg)) {
-							onClientDisconnect(socket);
+							onClientDisconnect(client);
 							break;
 						} else {
-							//TODO get msssage from client just for test
-							for(Client client : mClientList){
-								if(!client.getmInternetAddress().equals(socket.getInetAddress().toString())){
-									sendmsg(client.getmSocket(),msg);
-								}
-							}
-							msg = socket.getInetAddress() + ":" + msg;
+//							TODO get msssage from client just for test
+//							for(Client client : mClientList){
+//								if(!client.getmInternetAddress().equals(socket.getInetAddress().toString())){
+//									sendmsg(client.getmSocket(),msg);
+//								}
+//							}
+							msg = client.getmInternetAddress() + ":" + msg;
 							System.out.println("yadong "+msg);
 						}
 					}else{
-						onClientDisconnect(socket);
+						onClientDisconnect(client);
 						break;
 					}	
 				}
@@ -189,17 +207,16 @@ public class ServerService extends Service {
 			}
 		}
 		
-		private void onClientDisconnect(Socket clients) throws IOException{
-			mClientList.remove(socket);
+		private void onClientDisconnect(Client clientc) throws IOException{
+			mClientList.remove(clientc);
 			for(Client client : mClientList){
-				if (client.getmInternetAddress().equals(socket.getInetAddress().toString())) {
+				if (client.getmInternetAddress().equals(clientc.getmInternetAddress())) {
 					mClientList.remove(client);
 				}
 			}
-			mListeners.onClientDisconnect(socket
-					.getInetAddress().toString());
-			in.close();
-			socket.close();
+			mListeners.onClientDisconnect(clientc
+					.getmInternetAddress());
+			clientc.closeClient();
 		}
 		
 		public void sendmsg(Socket clients,String msg) {
@@ -210,7 +227,10 @@ public class ServerService extends Service {
 				pout.println(msg);
 			} catch (IOException e) {
 				e.printStackTrace();
+			}finally{
+				pout.close();
 			}
+			
 		}
 	}
 
