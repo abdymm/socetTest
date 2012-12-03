@@ -91,9 +91,11 @@ public class Client {
 	}
 	
 	public void sendMessage(String messageString){
+		System.out.println("yadng" + (mPout != null)+"  "+messageString);
 		if(mPout != null){
 			mPout.print(messageString);
 		}
+		mPout.flush();
 	}
 	public BufferedReader getBufferedReader(){
 		return mReader;

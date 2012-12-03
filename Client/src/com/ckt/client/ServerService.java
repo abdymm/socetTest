@@ -188,12 +188,14 @@ public class ServerService extends Service {
 							onClientDisconnect(client);
 							break;
 						} else {
+							System.out.println("yadong "+msg);
 //							TODO get msssage from client just for test
-//							for(Client client : mClientList){
-//								if(!client.getmInternetAddress().equals(socket.getInetAddress().toString())){
-//									sendmsg(client.getmSocket(),msg);
-//								}
-//							}
+							for(Client clienttemp : mClientList){
+								System.out.println("yaodng "+clienttemp.getmInternetAddress()+"   "+client.getmInternetAddress());
+								if(!clienttemp.getmInternetAddress().equals(client.getmInternetAddress())){
+									clienttemp.sendMessage(msg);
+								}
+							}
 							msg = client.getmInternetAddress() + ":" + msg;
 							System.out.println("yadong "+msg);
 						}

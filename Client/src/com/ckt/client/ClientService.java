@@ -116,6 +116,7 @@ public class ClientService extends Service{
 						Log.e(TAG, mContent);
 						// TODO server return error.
 					}
+					System.out.println("yadng   client"+mContent);
 					mListener.getCommand(mContent);
 				}else{
 					mListener.onDisconnect();
