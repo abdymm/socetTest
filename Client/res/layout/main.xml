@@ -1,44 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/parent"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical" 
-    android:id="@+id/parent"
-    >
+    android:orientation="vertical" >
 
     <EditText
         android:id="@+id/hostinput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/host_hint" 
-        android:inputType="number|text"
-        android:layout_marginTop="30dp"/>
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="30dp"
+        android:hint="@string/host_hint"
+        android:inputType="number|text" />
+
+    <Button
+        android:id="@+id/connetct"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/hostinput"
+        android:enabled="false"
+        android:text="@string/connect" />
+    
+    <TextView 
+        android:id="@+id/client_welcome"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"/>
 
     <LinearLayout
+        android:id="@+id/client_list"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
         android:orientation="horizontal"
-        android:layout_marginTop="20dp">
-
-        <Button
-            android:id="@+id/connetct"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/connect" 
-            android:enabled="false"/>
+        android:visibility="gone" >
 
         <TextView
-            android:id="@+id/textView1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="TextView" />
+            android:id="@+id/all_client_message"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
 
+        <ListView
+            android:id="@+id/all_clients"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
     </LinearLayout>
-    <ImageView android:id="@+id/imageView"
+
+    <ImageView
+        android:id="@+id/imageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:clickable="true"
-        android:visibility="gone"
-        android:src="@drawable/test"/>
+        android:src="@drawable/test"
+        android:visibility="gone" />
 
-</LinearLayout>
+</RelativeLayout>
