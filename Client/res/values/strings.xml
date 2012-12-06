@@ -13,5 +13,5 @@
 	<string name="connect_fail">Connect to %s fail.</string>
 	<string name="client_list_full">Client is full.</string>
 	<string name="client">Client</string>
-	<string name="client_list_message">There are %s clients connected.</string>
+	<string name="client_list_message" formatted="false" >Client %s connected.host ip is %s .</string>
 </resources>

@@ -28,14 +28,14 @@ public class Client {
 	public static final String CLIENT_WELCOME_HEAD = "welcome:";
 	public static final String CLIENT_SEND_FILE = "file:";
 	public static final String CLIENT_CHANGE_POSITION = "position:";
+	public static final String SERVER_SCREEN_SIZE = "screensize:";
 
 	private static final String TAG = "Server:Client";
 	// client index in server.
 	private int mIndex;
 	private Socket mSocket;
-	private float mScreenWidth = -1;
-	private float mScreenHight = -1;
-	private String[] mNeighbours = new String[4];
+	private int mScreenWidth = -1;
+	private int mScreenHight = -1;
 	private String mInternetAddress;
 	private PrintWriter mPout = null;
 	private BufferedReader mReader = null;
@@ -43,7 +43,7 @@ public class Client {
 	@SuppressWarnings("unused")
 	private Client() {
 	}
-
+	
 	public Client(Socket socket, int index) throws Exception {
 		if (socket == null) {
 			Log.e(TAG, "socket can not be null");
@@ -58,13 +58,6 @@ public class Client {
 				socket.getInputStream()));
 	}
 
-	public String getNeighbour(int direction) {
-		if (direction < NEIGHBOUR_LEFT || direction > NEIGHBOUR_BOTTOM) {
-			Log.e(TAG, "direction error");
-			return null;
-		}
-		return mNeighbours[direction];
-	}
 
 	public String getmInternetAddress() {
 		return mInternetAddress;
@@ -74,28 +67,21 @@ public class Client {
 		return mIndex;
 	}
 
-	public void setScreenSize(float width, float hight) {
+	public void setScreenSize(int width, int hight) {
 		mScreenHight = hight;
 		mScreenWidth = width;
 	}
 
-	public float getScreenHight() {
+	public int getScreenHight() {
 		return mScreenHight;
 	}
 
-	public float getScreenWidth() {
+	public int getScreenWidth() {
 		return mScreenWidth;
 	}
 
 	public Socket getSocket() {
 		return mSocket;
-	}
-
-	public void addNeighbour(String neighbour, int direction) {
-		if (direction < NEIGHBOUR_LEFT || direction > NEIGHBOUR_BOTTOM) {
-			Log.e(TAG, "direction error");
-		}
-		mNeighbours[direction] = neighbour;
 	}
 
 	public void sendMessage(String messageString) {

@@ -28,7 +28,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -68,7 +67,6 @@ public class ClientActivity extends Activity implements ClienServiceListener,
 	// mark the server is started . not the server service.
 	private boolean mIsServerServiceStarted;
 	private ArrayList<String> mClientList = new ArrayList<String>();
-	private SimpleAdapter mSimpleAdapter = null;
 
 	public TextWatcher watcher = new TextWatcher() {
 		@Override
@@ -171,7 +169,8 @@ public class ClientActivity extends Activity implements ClienServiceListener,
 			case MSG_CLIENT_DISCONNECT:
 				String format = getResources().getString(
 						R.string.client_list_message);
-				String text = String.format(format, mClientList.size());
+				String currentId  = Util.getWifiIP(ClientActivity.this);
+				String text = String.format(format, mClientList.size(),currentId);
 				mAllClientText.setText(text);
 				
 				break;
@@ -290,9 +289,11 @@ public class ClientActivity extends Activity implements ClienServiceListener,
 		mTextView.getBackground().setAlpha(100);
 		mTextView.setVisibility(View.VISIBLE);
 		mTextView.setText("Welcom. client:" + index);
-
+		//hide the inputMethod
+		final InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);       
+		imm.hideSoftInputFromWindow(mHostIp.getWindowToken(), 0); 
 	}
-
+		
 	@Override
 	public void onConnectSuccess(String index) {
 		Message message = new Message();
@@ -300,8 +301,13 @@ public class ClientActivity extends Activity implements ClienServiceListener,
 		message.obj = index;
 		mHandler.sendMessage(message);
 		mIsClientServiceConnect = true;
-		InputMethodManager m = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-		m.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
+		mClientService.sendMessage(Client.SERVER_SCREEN_SIZE+getScreenSize());
+	}
+	private String getScreenSize(){
+		WindowManager manager = getWindowManager();
+		int width = manager.getDefaultDisplay().getWidth();
+		int height = manager.getDefaultDisplay().getHeight();
+		return Util.changeToString(width, height);
 	}
 
 	@Override

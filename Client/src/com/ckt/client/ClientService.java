@@ -12,7 +12,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
-import android.os.Message;
 import android.util.Log;
 
 public class ClientService extends Service {

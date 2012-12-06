@@ -3,7 +3,6 @@ package com.ckt.client;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
@@ -139,6 +138,13 @@ public class ServerService extends Service {
 		}
 		return null;
 	}
+	
+	public Client getClientByIndex(int index){
+		if(index > mClientList.size())
+			return null;
+		else
+			return mClientList.get(index);
+	}
 	private class ClientReciver implements Runnable {
 		@Override
 		public void run() {
@@ -146,7 +152,6 @@ public class ServerService extends Service {
 				try {
 					mServer = new ServerSocket(PORT);
 					mExecutorService = Executors.newCachedThreadPool();
-					System.out.print("yadong server start ...");
 					Socket client = null;
 					while (true) {
 						client = mServer.accept();
@@ -174,7 +179,17 @@ public class ServerService extends Service {
 			}
 		}
 	}
-
+	private void handlePositionChange(Client from,String message){
+		if (message.split("\\|").length != 4) {
+			return;
+		}else{
+			PositionControler controler = new PositionControler(this);
+			controler.changePosition(from, Util.getPostion(message));
+		}
+		
+		
+		
+	}
 	class ClientServer implements Runnable {
 		private Client client;
 		private BufferedReader in = null;
@@ -195,21 +210,12 @@ public class ServerService extends Service {
 						if (EXIT_COMMAND.equals(msg)) {
 							onClientDisconnect(client);
 							break;
-						} else {
-							// TODO get msssage from client just for test
-							for (Client clienttemp : mClientList) {
-								System.out.println("yaodng "
-										+ clienttemp.getmInternetAddress()
-										+ "   " + client.getmInternetAddress());
-								if (!clienttemp.getmInternetAddress().equals(
-										client.getmInternetAddress())) {
-									clienttemp
-											.sendMessage(Client.CLIENT_CHANGE_POSITION
-													+ msg);
-								}
-							}
-							msg = client.getmInternetAddress() + ":" + msg;
-							System.out.println("yadong " + msg);
+						}else if(msg.startsWith(Client.SERVER_SCREEN_SIZE)){
+							msg = msg.replaceAll(Client.SERVER_SCREEN_SIZE, "");
+							int screenSize[] = Util.changeToInt(msg);
+							client.setScreenSize(screenSize[0], screenSize[1]);
+						}else {
+							handlePositionChange(client,msg);
 						}
 					} else {
 						onClientDisconnect(client);
