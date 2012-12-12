@@ -180,11 +180,12 @@ public class ServerService extends Service {
 		}
 	}
 	private void handlePositionChange(Client from,String message){
+		System.out.println("yadong server message="+message);
 		if (message.split("\\|").length != 4) {
 			return;
 		}else{
 			PositionControler controler = new PositionControler(this);
-			controler.changePosition(from, Util.getPostion(message));
+			controler.changePosition(from, Util.getPostion(message),true);
 		}
 		
 		
