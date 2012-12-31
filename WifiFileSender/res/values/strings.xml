@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">WifiFileSender</string>
+    <string name="btn_start_server">Start wifi server.</string>
+	<string name="btn_scan_connect_server">Scan and connect to server.</string>
+	<string name="ap_start_success">Start server success!</string>
+	<string name="ap_start_fail">Start server fail!Please try it later!</string>
+	<string name="connect_ap_success">Connected to server.</string>
+	<string name="connect_ap_fail">Connect to server fail,please try it again!</string>
+</resources>
