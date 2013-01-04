@@ -1,7 +1,6 @@
 package com.cassidy.wifi_file_sender;
 
 import java.lang.reflect.Method;
-import java.util.List;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -23,6 +22,7 @@ public class MyWifiManager {
 	private Context mContext;
 	private WifiManager mWifiManager; 
 	private Listener mListener;
+	private String mDevicesId;
 	
 	public MyWifiManager(Context context){
 		mContext = context;
@@ -37,20 +37,25 @@ public class MyWifiManager {
 			mWifiManager.setWifiEnabled(false);
 		}
 		try {
+			mDevicesId = Util.createRandomId();
 			WifiConfiguration wifiConfiguration = new WifiConfiguration();
 			wifiConfiguration.SSID = AP_NAME;
 			wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
-			wifiConfiguration.preSharedKey = AP_PASSWORD;
-			
+			wifiConfiguration.preSharedKey = AP_PASSWORD+mDevicesId;
 			Method method = mWifiManager.getClass().getMethod("setWifiApEnabled", WifiConfiguration.class, Boolean.TYPE);
 			if((Boolean) method.invoke(mWifiManager, wifiConfiguration,state)){
 				mApStart = !mApStart;
+				
 				return true;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return false;
+	}
+	
+	protected String getDevicesId(){
+		return mDevicesId;
 	}
 	
 	public void connectAp(){
@@ -68,7 +73,8 @@ public class MyWifiManager {
 					e.printStackTrace();
 				}finally{
 					mContext.unregisterReceiver(receiver);
-					mListener.connectAPSuccess(false);
+					if(!mConnectedServer)
+						mListener.connectAPSuccess(false);
 				}
 			}
 		}).start();
@@ -79,19 +85,22 @@ public class MyWifiManager {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			System.out.println("onReceive");
-			WifiConfiguration wifiConfiguration = null;
-			
+			if (!mConnectedServer) {
+				for (ScanResult result : mWifiManager.getScanResults()) {
+					System.out.println("yadong -- " + result.toString());
+					if (result.SSID.equals(AP_NAME)) {
+						WifiConfiguration config = new WifiConfiguration();
+						config.SSID = "\"" + AP_NAME + "\"";
+						config.preSharedKey = "\"" + AP_PASSWORD + "\"";
+						config.BSSID = result.BSSID;
+						config.allowedKeyManagement.set(KeyMgmt.NONE);
+						int id = mWifiManager.addNetwork(config);
+						if (mWifiManager.enableNetwork(id, false)) {
+							mListener.connectAPSuccess(true);
+							mConnectedServer = true;
+						}
 
-			for(ScanResult result : mWifiManager.getScanResults()){
-				System.out.println("yadong -- "+result.toString());
-				if(result.SSID.equals(AP_NAME)){
-					WifiConfiguration config = new WifiConfiguration();
-					config.SSID = "\"" + AP_NAME + "\"";
-					config.preSharedKey = "\"" + AP_PASSWORD + "\"";
-					config.BSSID = result.BSSID;
-					config.allowedKeyManagement.set(KeyMgmt.NONE);
-					mWifiManager.c
-					mListener.connectAPSuccess(true);
+					}
 				}
 			}
 

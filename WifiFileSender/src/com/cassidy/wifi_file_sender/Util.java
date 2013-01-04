@@ -1,11 +1,15 @@
 package com.cassidy.wifi_file_sender;
 
+import java.util.Random;
+
 import android.content.Context;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 
 public final class Util {
 	private static final String SEPARATOR = ":";
+	private static final int RANDOM_LENGTH = 5;
+	
 	public static String getWifiIP(Context context) {
 		WifiManager wifiManager = (WifiManager) context
 				.getSystemService(Context.WIFI_SERVICE);
@@ -55,6 +59,22 @@ public final class Util {
 		} catch (NumberFormatException e) {
 			return null;
 		}
+	}
+	
+	public static String createRandomId(){
+		StringBuilder sb = new StringBuilder();
+		for (int index = 0; index < RANDOM_LENGTH; index++) {
+			int key = new Random().nextInt(36);
+			char value;
+			if (key <= 26) {
+				value = (char)('a'+Math.random()*('z'-'a'+1));
+			} else {
+				value = (char)('0'+Math.random()*('9'-'0'+1));
+			}
+			sb.append(value);
+		}
+		return sb.toString();
+		
 	}
 	
 
