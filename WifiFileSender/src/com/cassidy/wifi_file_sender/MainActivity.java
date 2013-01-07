@@ -67,6 +67,7 @@ public class MainActivity extends Activity {
 		public void onClick(View v) {
 			dialog = ProgressDialog.show(MainActivity.this, "Searching", "Searching...");
 			mManager.connectAp();
+			mManager.setKey("vcp1d");
 			mManager.registListener(this);
 		}
 

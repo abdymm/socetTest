@@ -23,7 +23,11 @@ public class MyWifiManager {
 	private WifiManager mWifiManager; 
 	private Listener mListener;
 	private String mDevicesId;
+	private String mKey;
 	
+	public void setKey(String key) {
+		mKey = key;
+	}
 	public MyWifiManager(Context context){
 		mContext = context;
 		mWifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
@@ -91,7 +95,7 @@ public class MyWifiManager {
 					if (result.SSID.equals(AP_NAME)) {
 						WifiConfiguration config = new WifiConfiguration();
 						config.SSID = "\"" + AP_NAME + "\"";
-						config.preSharedKey = "\"" + AP_PASSWORD + "\"";
+						config.preSharedKey = "\"" + AP_PASSWORD + mKey + "\"";
 						config.BSSID = result.BSSID;
 						config.allowedKeyManagement.set(KeyMgmt.NONE);
 						int id = mWifiManager.addNetwork(config);
