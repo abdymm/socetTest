@@ -5,10 +5,12 @@ import java.util.Random;
 import android.content.Context;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.util.Log;
 
 public final class Util {
 	private static final String SEPARATOR = ":";
 	private static final int RANDOM_LENGTH = 5;
+	private static final String TAG = "WinfiFileSender";
 	
 	public static String getWifiIP(Context context) {
 		WifiManager wifiManager = (WifiManager) context
@@ -75,6 +77,10 @@ public final class Util {
 		}
 		return sb.toString();
 		
+	}
+	
+	public static void logv(String message){
+		Log.v(TAG, message);
 	}
 	
 

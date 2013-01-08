@@ -14,11 +14,20 @@ public final class R {
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
-        public static final int scan_connect_server=0x7f050001;
-        public static final int start_server=0x7f050000;
+        public static final int client_count=0x7f050003;
+        public static final int client_list=0x7f050004;
+        public static final int client_show=0x7f050001;
+        public static final int devices_id=0x7f050009;
+        public static final int devices_id_parent=0x7f050008;
+        public static final int host_show=0x7f050002;
+        public static final int host_view=0x7f050000;
+        public static final int key_edit=0x7f050006;
+        public static final int scan_connect_server=0x7f050007;
+        public static final int start_server=0x7f050005;
     }
     public static final class layout {
         public static final int main=0x7f030000;
+        public static final int welcome=0x7f030001;
     }
     public static final class string {
         public static final int ap_start_fail=0x7f040004;
@@ -26,7 +35,15 @@ public final class R {
         public static final int app_name=0x7f040000;
         public static final int btn_scan_connect_server=0x7f040002;
         public static final int btn_start_server=0x7f040001;
+        public static final int client=0x7f04000d;
+        public static final int client_id=0x7f04000e;
+        public static final int client_list_full=0x7f040009;
         public static final int connect_ap_fail=0x7f040006;
         public static final int connect_ap_success=0x7f040005;
+        public static final int devices_id=0x7f040008;
+        public static final int host=0x7f04000c;
+        public static final int input_device_id=0x7f040007;
+        public static final int is_host=0x7f04000b;
+        public static final int warning_key_null=0x7f04000a;
     }
 }

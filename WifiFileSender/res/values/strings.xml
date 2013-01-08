@@ -10,4 +10,9 @@
 	<string name="input_device_id">Input device ID</string>
 	<string name="devices_id">Your devices id:</string>
 	<string name="client_list_full">Client is full.</string>
+	<string name="warning_key_null">Ket can not be null!</string>
+	<string name="is_host">Your device is:</string>
+	<string name="host">Host</string>
+	<string name="client">Client</string>
+	<string name="client_id">Your client id is: %s</string>
 </resources>

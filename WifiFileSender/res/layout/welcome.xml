@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+   	<Button android:id="@+id/start_server"
+   	    android:layout_width="fill_parent"
+   	    android:layout_height="wrap_content"
+   	    android:text="@string/btn_start_server"/>
+
+   	<EditText
+   	    android:id="@+id/key_edit"
+   	    android:layout_width="match_parent"
+   	    android:layout_height="wrap_content"
+   	    android:ems="10"
+   	    android:hint="@string/input_device_id" >
+
+   	    <requestFocus />
+   	</EditText>
+   	
+   	<Button android:id="@+id/scan_connect_server"
+   	    android:layout_width="fill_parent"
+   	    android:layout_height="wrap_content"
+   	    android:text="@string/btn_start_server"/>
+
+   	<LinearLayout
+   	    android:id="@+id/devices_id_parent"
+   	    android:layout_width="match_parent"
+   	    android:layout_height="wrap_content" 
+   	    android:orientation="horizontal"
+   	    android:visibility="gone">
+
+   	    <TextView
+   	        android:layout_width="wrap_content"
+   	        android:layout_height="wrap_content"
+   	        android:text="@string/devices_id" />
+
+   	    <TextView
+   	        android:id="@+id/devices_id"
+   	        android:layout_width="wrap_content"
+   	        android:layout_height="wrap_content"/>
+   	</LinearLayout>
+
+</LinearLayout>

@@ -1,45 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical" >
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+   <TextView android:id="@+id/host_view"
+       android:layout_height="wrap_content"
+       android:layout_width="fill_parent"
+       android:layout_alignParentTop="true"/>
+   <TextView android:id="@+id/client_show"
+       android:layout_height="wrap_content"
+       android:layout_width="fill_parent"
+       android:layout_below="@id/host_view"/>
+   <LinearLayout android:id="@+id/host_show"
+       android:layout_height="wrap_content"
+       android:layout_width="fill_parent"
+       android:layout_below="@id/host_view">
+        <TextView android:id="@+id/client_count"
+       		android:layout_height="wrap_content"
+       		android:layout_width="fill_parent"/>
+        <TextView android:id="@+id/client_list"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"/>
+   </LinearLayout>
+  
 
-   	<Button android:id="@+id/start_server"
-   	    android:layout_width="fill_parent"
-   	    android:layout_height="wrap_content"
-   	    android:text="@string/btn_start_server"/>
-
-   	<EditText
-   	    android:id="@+id/editText1"
-   	    android:layout_width="match_parent"
-   	    android:layout_height="wrap_content"
-   	    android:ems="10"
-   	    android:hint="@string/input_device_id" >
-
-   	    <requestFocus />
-   	</EditText>
-   	
-   	<Button android:id="@+id/scan_connect_server"
-   	    android:layout_width="fill_parent"
-   	    android:layout_height="wrap_content"
-   	    android:text="@string/btn_start_server"/>
-
-   	<LinearLayout
-   	    android:id="@+id/devices_id_parent"
-   	    android:layout_width="match_parent"
-   	    android:layout_height="wrap_content" 
-   	    android:orientation="horizontal"
-   	    android:visibility="gone">
-
-   	    <TextView
-   	        android:layout_width="wrap_content"
-   	        android:layout_height="wrap_content"
-   	        android:text="@string/devices_id" />
-
-   	    <TextView
-   	        android:id="@+id/devices_id"
-   	        android:layout_width="wrap_content"
-   	        android:layout_height="wrap_content"/>
-   	</LinearLayout>
-
-</LinearLayout>
+</RelativeLayout>
