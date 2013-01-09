@@ -179,6 +179,7 @@ public class MainActivity extends Activity implements ClienServiceListener,
 
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
+			System.out.println("yadong  onServiceConnected "+name.getClassName());
 			if (name.getClassName().equals(ServerService.class.getName())) {
 				mServerService = ((ServerBinder) service).getService();
 				mServerService.startServer();
@@ -190,6 +191,8 @@ public class MainActivity extends Activity implements ClienServiceListener,
 					mClientService = ((ClientBinder) service).getService();
 					mClientService.startConnect(mHostIp);
 					mClientService.rejestListener(MainActivity.this);
+					System.out.println("yadong mHostIp = "+mHostIp);
+					mClientService.startConnect(mHostIp);
 				}
 
 			}

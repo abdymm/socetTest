@@ -2,6 +2,8 @@ package com.cassidy.wifi_file_sender;
 
 import java.lang.reflect.Method;
 
+import com.cassidy.wifi_file_sender.WifiConnect.WifiCipherType;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -76,8 +78,8 @@ public class MyWifiManager {
 					Log.e(this.getClass().getSimpleName(),"yadong"+e.getMessage());
 					e.printStackTrace();
 				}finally{
-					mContext.unregisterReceiver(receiver);
 					if(!mConnectedServer)
+						mContext.unregisterReceiver(receiver);
 						mListener.connectAPSuccess(false);
 				}
 			}
@@ -93,13 +95,10 @@ public class MyWifiManager {
 				for (ScanResult result : mWifiManager.getScanResults()) {
 					System.out.println("yadong -- " + result.toString());
 					if (result.SSID.equals(AP_NAME)) {
-						WifiConfiguration config = new WifiConfiguration();
-						config.SSID = "\"" + AP_NAME + "\"";
-						config.preSharedKey = "\"" + AP_PASSWORD + mKey + "\"";
-						config.BSSID = result.BSSID;
-						config.allowedKeyManagement.set(KeyMgmt.NONE);
-						int id = mWifiManager.addNetwork(config);
-						if (mWifiManager.enableNetwork(id, false)) {
+						WifiConnect connect = new WifiConnect(mWifiManager);
+						mListener.connectAPSuccess(true);
+						String password = AP_PASSWORD+mKey;
+						if(connect.connect(AP_NAME, password, WifiCipherType.WIFICIPHER_WPA)){
 							mListener.connectAPSuccess(true);
 							mConnectedServer = true;
 						}

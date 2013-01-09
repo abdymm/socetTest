@@ -81,14 +81,15 @@ public class WelcomActivity extends Activity {
     	ProgressDialog dialog = null;
 		@Override
 		public void onClick(View v) {
+
 			String key = mKeyView.getText().toString();
 			if(null == key || key.isEmpty()){
 				showToast(R.string.warning_key_null);
 			}else{
+				mManager.registListener(this);
 				dialog = ProgressDialog.show(WelcomActivity.this, "Searching", "Searching...");
 				mManager.connectAp();
 				mManager.setKey(key);
-				mManager.registListener(this);
 			}
 		}
 
