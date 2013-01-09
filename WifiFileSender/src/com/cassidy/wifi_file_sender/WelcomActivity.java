@@ -2,6 +2,7 @@ package com.cassidy.wifi_file_sender;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 public class WelcomActivity extends Activity {
 	public static final String EXTRA_KEY = "host_key";
 	public static final String EXTRA_HOST_IP = "host_ip";
+	private static final String HOST_IP = "192.168.1.1";
 	
 	private MyWifiManager mManager;
 	private static final int MSG_CONECT_AP_SUCCESS = 1;
@@ -43,6 +45,10 @@ public class WelcomActivity extends Activity {
 					mDevicesView.setVisibility(View.VISIBLE);
 					mShowDevicesId.setText(mDevicesId);
 					showToast(R.string.ap_start_success);
+					Intent intent = new Intent(WelcomActivity.this,MainActivity.class);
+					intent.putExtra(EXTRA_KEY, mDevicesId);
+					startActivity(intent);
+					WelcomActivity.this.finish();
 				}else{
 					showToast(R.string.ap_start_fail);
 				}
@@ -58,6 +64,10 @@ public class WelcomActivity extends Activity {
     		switch (msg.what) {
 			case MSG_CONECT_AP_SUCCESS:
 				showToast(R.string.connect_ap_success);
+				Intent intent = new Intent(WelcomActivity.this,MainActivity.class);
+				intent.putExtra(EXTRA_HOST_IP, HOST_IP);
+				startActivity(intent);
+				WelcomActivity.this.finish();
 				break;
 			case MSG_CONECT_AP_FAIL:
 				showToast(R.string.connect_ap_fail);
@@ -77,7 +87,7 @@ public class WelcomActivity extends Activity {
 			}else{
 				dialog = ProgressDialog.show(WelcomActivity.this, "Searching", "Searching...");
 				mManager.connectAp();
-				mManager.setKey("vcp1d");
+				mManager.setKey(key);
 				mManager.registListener(this);
 			}
 		}

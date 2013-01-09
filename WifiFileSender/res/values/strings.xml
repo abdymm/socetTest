@@ -12,7 +12,12 @@
 	<string name="client_list_full">Client is full.</string>
 	<string name="warning_key_null">Ket can not be null!</string>
 	<string name="is_host">Your device is:</string>
+	<string name="device_key_is">Device key is:</string>
 	<string name="host">Host</string>
 	<string name="client">Client</string>
 	<string name="client_id">Your client id is: %s</string>
+	<string name="search_host_dialog_title">Search host</string>
+	<string name="search_host_dialog_message">Searching</string>
+	<string name="new_client_connect_message">New client %s connect!</string>
+	<string name="client_disconnect_message">Client %s disconnect!</string>
 </resources>

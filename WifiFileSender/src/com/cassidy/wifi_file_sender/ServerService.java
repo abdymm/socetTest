@@ -39,6 +39,7 @@ public class ServerService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		startServer();
 	}
 
 	@Override
@@ -55,7 +56,9 @@ public class ServerService extends Service {
 			System.out.println("yadong error !!!! mManiThread != null");
 		}
 	}
-
+	List<Client> getClientList(){
+		return mClientList;
+	}
 	public void init() {
 		try {
 			for (Client client : mClientList) {

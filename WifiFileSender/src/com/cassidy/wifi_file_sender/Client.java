@@ -57,7 +57,9 @@ public class Client {
 		mReader = new BufferedReader(new InputStreamReader(
 				socket.getInputStream()));
 	}
-
+	public int getColor(){
+		return COLORS[mIndex];
+	}
 
 	public String getmInternetAddress() {
 		return mInternetAddress;

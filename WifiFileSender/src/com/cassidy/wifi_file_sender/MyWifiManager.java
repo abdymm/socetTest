@@ -58,7 +58,7 @@ public class MyWifiManager {
 		return false;
 	}
 	
-	protected String getDevicesId(){
+	public String getDevicesId(){
 		return mDevicesId;
 	}
 	
