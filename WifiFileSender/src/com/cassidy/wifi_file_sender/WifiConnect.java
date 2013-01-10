@@ -51,7 +51,7 @@ public class WifiConnect {
 		}
 
 		int netID = wifiManager.addNetwork(wifiConfig);
-		boolean bRet = wifiManager.enableNetwork(netID, false);
+		boolean bRet = wifiManager.enableNetwork(netID, true);
 		return bRet;
 	}
 

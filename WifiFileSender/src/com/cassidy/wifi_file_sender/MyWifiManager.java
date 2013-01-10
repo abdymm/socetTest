@@ -2,23 +2,26 @@ package com.cassidy.wifi_file_sender;
 
 import java.lang.reflect.Method;
 
-import com.cassidy.wifi_file_sender.WifiConnect.WifiCipherType;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.NetworkInfo.State;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
-import android.net.wifi.WifiConfiguration.KeyMgmt;
 import android.net.wifi.WifiManager;
 import android.util.Log;
+
+import com.cassidy.wifi_file_sender.WifiConnect.WifiCipherType;
 
 public class MyWifiManager {
 	public static final String AP_NAME = "WifiFileSender";
 	//TODO generate password from Util
 	private static final String AP_PASSWORD = "abcdefgh";
-	private static final int SLEEP_TIME = 30000;
+	private static final int MAX_TRY_CONNECT_TIME = 2;
+	private static final int DELY_FOR_RESULT = 10000;
 	public boolean mApStart = false;
 	public boolean mConnectedServer = false;
 	private Context mContext;
@@ -65,22 +68,27 @@ public class MyWifiManager {
 	}
 	
 	public void connectAp(){
-		startScan();
-		final WifiReceiver receiver = new WifiReceiver();
-		mContext.registerReceiver(receiver, new IntentFilter(
-				WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+		final WifiReceiver wifiReceiver = new WifiReceiver();
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
+		filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+		mContext.registerReceiver(wifiReceiver, filter);
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				try {
-					Thread.sleep(SLEEP_TIME);
-				} catch (InterruptedException e) {
-					Log.e(this.getClass().getSimpleName(),"yadong"+e.getMessage());
-					e.printStackTrace();
-				}finally{
-					if(!mConnectedServer)
-						mContext.unregisterReceiver(receiver);
+				startScan();
+				for (int time = 0;time <= MAX_TRY_CONNECT_TIME ;time++){
+					try {
+						Thread.sleep(DELY_FOR_RESULT);
+					} catch (InterruptedException e) {}
+					if(mConnectedServer){
+						mContext.unregisterReceiver(wifiReceiver);
+						mListener.connectAPSuccess(true);
+						break;
+					}else if(time == MAX_TRY_CONNECT_TIME){
+						mContext.unregisterReceiver(wifiReceiver);
 						mListener.connectAPSuccess(false);
+					}
 				}
 			}
 		}).start();
@@ -90,21 +98,25 @@ public class MyWifiManager {
 	class WifiReceiver extends BroadcastReceiver{
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			System.out.println("onReceive");
-			if (!mConnectedServer) {
-				for (ScanResult result : mWifiManager.getScanResults()) {
-					System.out.println("yadong -- " + result.toString());
-					if (result.SSID.equals(AP_NAME)) {
-						WifiConnect connect = new WifiConnect(mWifiManager);
-						mListener.connectAPSuccess(true);
-						String password = AP_PASSWORD+mKey;
-						if(connect.connect(AP_NAME, password, WifiCipherType.WIFICIPHER_WPA)){
-							mListener.connectAPSuccess(true);
-							mConnectedServer = true;
+			String action = intent.getAction();
+			System.out.println("yadong Actiong = "+action);
+			if(action.equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)){
+				if (!mConnectedServer) {
+					for (ScanResult result : mWifiManager.getScanResults()) {
+						if (result.SSID.equals(AP_NAME)) {
+							WifiConnect connect = new WifiConnect(mWifiManager);
+							String password = AP_PASSWORD + mKey;
+							if (connect.connect(AP_NAME, password,
+									WifiCipherType.WIFICIPHER_WPA)) {
+								mConnectedServer = true;
+							}
 						}
-
 					}
 				}
+			}else if(action.equals(ConnectivityManager.CONNECTIVITY_ACTION)){
+				NetworkInfo info = intent
+						.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
+				System.out.println("yadong"+info.getState());
 			}
 
 		}
@@ -115,7 +127,13 @@ public class MyWifiManager {
 		int wifiState = mWifiManager.getWifiState();
 		if (wifiState != WifiManager.WIFI_STATE_ENABLED && wifiState != WifiManager.WIFI_STATE_ENABLING ) {
 			mWifiManager.setWifiEnabled(true);
+			System.out.println("yadong Thread sleep");
+			//dely 10s for open the wifi
+			try {
+				Thread.sleep(DELY_FOR_RESULT);
+			} catch (InterruptedException e) {}
 		}
+		System.out.println("yadong code start");
 		mWifiManager.startScan();
 	}
 }
