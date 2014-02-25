@@ -1,5 +1,5 @@
 
-package test.demo;
+package test.demo.connect;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -27,7 +27,8 @@ public class Server {
         // 为了简单起见，所有的异常信息都往外抛
         int port = 8899;
         // 定义一个ServerSocket监听在端口8899上
-        ThreadPoolExecutor executor = new ThreadPoolExecutor(5, 10, 1L, TimeUnit.HOURS,new LinkedBlockingDeque<Runnable>());
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(5, 10, 1L, TimeUnit.HOURS,
+                new LinkedBlockingDeque<Runnable>());
         ServerSocket server = new ServerSocket(port);
         while (true) {
             // server尝试接收其他Socket的连接请求，server的accept方法是阻塞式的

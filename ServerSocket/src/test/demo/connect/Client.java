@@ -1,5 +1,5 @@
 
-package test.demo;
+package test.demo.connect;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -12,8 +12,21 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 public class Client {
-    public static void main(String args []) {
-        new Client().sendFile("d://NewVirtualDisk1.vhd");
+    private Socket socket = null;
+    private String ip = null;
+    private int port = 8080;
+
+    public Client(String address) {
+        this.ip = address.substring(0, address.indexOf(":"));
+        this.port = Integer.parseInt(address.substring(address.indexOf(":")));
+    }
+
+    public static void main(String args[]) {
+        new Client("192.168.1.1").sendFile("d://NewVirtualDisk1.vhd");
+    }
+
+    public void connect() {
+        socket = new Socket(ip, port);
     }
 
     private void sendFile(String filePath) {
@@ -38,7 +51,6 @@ public class Client {
                 if (dis != null) {
                     read = dis.read(bufArray);
                 }
-
                 if (read == -1) {
                     break;
                 }
