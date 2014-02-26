@@ -20,6 +20,7 @@ public class Server {
     public static final String START_HEAD = "FILE_START";
     public static final String RESULT_ERROR1 = "Reuqest error";
     public static final String RESULT_SEND_SUCCESS = "Save file success";
+    public static final String RESULT_CONNECT_SUCCESS = "CONNECT_SUCCESS";
     private static final String FILE_SAVE_PATH = "f://saved_file/";
     private static final int BUFFERED_SIZE = 2048;
 
@@ -78,41 +79,15 @@ public class Server {
             try {
                 dataInputStream = new DataInputStream(new BufferedInputStream(
                         socket.getInputStream()));
-                String check = dataInputStream.readUTF();
+
                 writer = new OutputStreamWriter(socket.getOutputStream(), "UTF-8");
-                if (START_HEAD.equals(check)) {
-                    // 检查存储位置是否准备好
-                    checkDir();
-                    String temFile = System.currentTimeMillis() + "";
-                    File outFile = new File(FILE_SAVE_PATH + temFile);
-                    DataOutputStream fileOut = new DataOutputStream(new BufferedOutputStream(
-                            new FileOutputStream(outFile)));
-                    try {
-                        byte[] buf = new byte[BUFFERED_SIZE];
-                        // 文件总大小
-                        long len = dataInputStream.readLong();
-                        // 目前接受大小
-                        int passedlen = 0;
-                        while (true) {
-                            int read = 0;
-                            if (dataInputStream != null) {
-                                read = dataInputStream.read(buf);
-                            }
-                            passedlen += read;
-                            if (read == -1) {
-                                break;
-                            }
-                            fileOut.write(buf, 0, read);
-                            System.out.println("recevied:" + (passedlen * 100 / len) + "%");
-                        }
-                        writer.write(RESULT_SEND_SUCCESS);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    } finally {
-                        fileOut.close();
+                while (true) {
+                    String check = dataInputStream.readUTF();
+                    if (START_HEAD.equals(check)) {
+                        readAndWriteToFile(dataInputStream);
+                    } else {
+                        writer.write(RESULT_ERROR1);
                     }
-                } else {
-                    writer.write(RESULT_ERROR1);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -122,4 +97,43 @@ public class Server {
             }
         }
     }
+
+    private static boolean readAndWriteToFile(DataInputStream dataInputStream) {
+        File outFile = new File(FILE_SAVE_PATH + System.currentTimeMillis());
+        DataOutputStream fileOut = null;
+        try {
+            fileOut = new DataOutputStream(new BufferedOutputStream(
+                    new FileOutputStream(outFile)));
+            byte[] buf = new byte[BUFFERED_SIZE];
+            long len = dataInputStream.readLong();
+            int passedlen = 0;
+            while (true) {
+                int read = 0;
+                if (dataInputStream != null) {
+                    read = dataInputStream.read(buf);
+                }
+                passedlen += read;
+                if (read == -1) {
+                    break;
+                }
+                fileOut.write(buf, 0, read);
+                if (passedlen == len) {
+                    break;
+                }
+            }
+            return true;
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return false;
+        } finally {
+            try {
+                if (fileOut != null) {
+                    fileOut.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 }

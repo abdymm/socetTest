@@ -1,4 +1,8 @@
+
 package test.demo.ui;
+
+import test.demo.connect.Client;
+import test.demo.connect.ClientConnectListener;
 
 import java.awt.Container;
 import java.awt.Dimension;
@@ -14,11 +18,12 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JTextField;
 
-public class SocketConnect implements ActionListener{
+public class SocketConnect implements ActionListener, ClientConnectListener {
     JFrame frame;
     JButton connect;
     JTextField ipInput;
     JButton exit;
+    private Client client;
 
     public SocketConnect() {
         frame = new JFrame("链接");
@@ -60,17 +65,39 @@ public class SocketConnect implements ActionListener{
                 System.exit(0);
             }
         });
+
+        client = new Client(this);
     }
 
     @Override
     public void actionPerformed(ActionEvent arg0) {
         if (arg0.getSource().equals(exit)) {
             System.exit(0);
+        } else if (arg0.getSource().equals(connect)) {
+            client.connect(ipInput.getText());
         }
     }
 
-    public static void main(String args []) {
+    public static void main(String args[]) {
         new SocketConnect();
+    }
+
+    @Override
+    public void onConnectSuccess(boolean success) {
+            SocketConnect.this.frame.dispose();
+            new FileUploader(client);
+    }
+
+    @Override
+    public void onConnectError(String errorMessage) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void onDisconnect() {
+        // TODO Auto-generated method stub
+
     }
 
 }

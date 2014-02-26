@@ -1,6 +1,10 @@
 
 package test.demo.ui;
 
+import test.demo.connect.Client;
+import test.demo.connect.ClientConnectListener;
+import test.demo.connect.Server;
+
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -20,15 +24,18 @@ import javax.swing.filechooser.FileFilter;
 
 //由于我们在程序中要使用到File与FileFilter对象,因此要import File与FileFilter这两个类.
 
-public class FileUploader implements ActionListener {
+public class FileUploader implements ActionListener,ClientConnectListener{
     JFrame f = null;
     JLabel label = null;
     JFileChooser fileChooser = null;
     JButton b;
     JButton upload;
+    JButton disConnect;
     JLabel stateLable = null;
+    Client mClient;
+    String filePath = null;
 
-    public FileUploader() {
+    public FileUploader(Client client) {
         f = new JFrame("文件选择");
         f.setLayout(new GridBagLayout());
         f.setLocationRelativeTo(null);
@@ -52,19 +59,27 @@ public class FileUploader implements ActionListener {
         c.gridy = 2;
         contentPane.add(upload, c);
 
-        stateLable = new JLabel("未连接", JLabel.LEFT);
+        disConnect = new JButton("断开连接");
+        disConnect.addActionListener(this);
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.insets = new Insets(10, 20, 20, 20);
+        c.gridx = 2;
+        c.gridy = 2;
+        contentPane.add(disConnect, c);
+
+        stateLable = new JLabel("连接成功", JLabel.LEFT);
         stateLable.setPreferredSize(new Dimension(150, 30));
         c.fill = GridBagConstraints.VERTICAL;
-        c.gridwidth = 2;
+        c.gridwidth = 3;
         c.gridx = 0;
         c.gridy = 0;
         c.insets = new Insets(10, 20, 0, 20); // top padding
         contentPane.add(stateLable,c);
 
         label = new JLabel(" ", JLabel.CENTER);
-        label.setPreferredSize(new Dimension(150, 30));
+        label.setPreferredSize(new Dimension(400, 30));
         c.fill = GridBagConstraints.VERTICAL;
-        c.gridwidth = 2;
+        c.gridwidth = 3;
         c.gridx = 0;
         c.gridy = 1;
         c.insets = new Insets(10, 20, 0, 20); // top padding
@@ -75,9 +90,15 @@ public class FileUploader implements ActionListener {
         f.setVisible(true);
         f.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
+                if (mClient != null) {
+                    mClient.disConnect();
+                }
                 System.exit(0);
             }
         });
+
+        this.mClient = client;
+        client.setListener(this);
     }
 
     // 处理用户按下"打开旧文件"按钮事件.
@@ -88,14 +109,31 @@ public class FileUploader implements ActionListener {
             int result = fileChooser.showOpenDialog(f);
             if (result == JFileChooser.APPROVE_OPTION) {
                 File file = fileChooser.getSelectedFile();
-                label.setText("你选择了:" + file.getName() + "文件");
+                label.setText(file.getAbsolutePath() + " " + file.length()/1024 + "kb");
+                filePath = file.getAbsolutePath();
                 upload.setEnabled(true);
             } else if (result == JFileChooser.CANCEL_OPTION) {
                 label.setText("你没有选取文件");
             }
         } else if (e.getSource().equals(upload)) {
-            //TODO upload
+            mClient.sendFile(filePath);
+        } else if (e.getSource().equals(disConnect)) {
+            mClient.disConnect();
+            System.exit(0);
         }
+    }
+
+    @Override
+    public void onConnectSuccess(boolean success) {
+    }
+
+    @Override
+    public void onConnectError(String errorMessage) {
+    }
+
+    @Override
+    public void onDisconnect() {
+        stateLable.setText("连接断开");
     }
 }
 

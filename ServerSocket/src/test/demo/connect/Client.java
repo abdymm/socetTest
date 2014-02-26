@@ -15,33 +15,69 @@ public class Client {
     private Socket socket = null;
     private String ip = null;
     private int port = 8080;
+    private ClientConnectListener mListener;
+    private static final int BUFFERED_SIZE = 2048;
+    private boolean connected = false;
+    
 
-    public Client(String address) {
-        this.ip = address.substring(0, address.indexOf(":"));
-        this.port = Integer.parseInt(address.substring(address.indexOf(":")));
+    public Client(ClientConnectListener listener) {
+        mListener = listener;
     }
 
-    public static void main(String args[]) {
-        new Client("192.168.1.1").sendFile("d://NewVirtualDisk1.vhd");
+    public void setListener(ClientConnectListener listener){
+        mListener = listener;
     }
 
-    public void connect() {
-        socket = new Socket(ip, port);
+    public void connect(final String address) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ip = address.substring(0, address.indexOf(":"));
+                    port = Integer.parseInt(address.substring(address.indexOf(":") + 1));
+                    socket = new Socket(ip, port);
+                    connected = true;
+                    while (true) {
+                        DataInputStream dataInputStream;
+                        dataInputStream = new DataInputStream(socket.getInputStream());
+                        mListener.onConnectSuccess(true);
+                        while (true) {
+                            String returnStr = dataInputStream.readUTF();
+                            if (Server.RESULT_CONNECT_SUCCESS.equals(returnStr)) {
+                                mListener.onConnectSuccess(true);
+                            }
+                        }
+                    }
+                } catch (UnknownHostException e) {
+                    e.printStackTrace();
+                    mListener.onConnectError(e.getMessage());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    mListener.onConnectError(e.getMessage());
+                }
+            }
+        }).start();
     }
 
-    private void sendFile(String filePath) {
-        String host = "127.0.0.1"; // 要连接的服务端IP地址
-        int port = 8899; // 要连接的服务端对应的监听端口
+    public void disConnect() {
+        if (connected) {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        connected = false;
+    }
+
+    public void sendFile(String filePath) {
         DataOutputStream dos = null;
         DataInputStream dis = null;
-        Socket socket = null;
         try {
-            socket = new Socket(host, port);
             File file = new File(filePath);
             dos = new DataOutputStream(socket.getOutputStream());
             dis = new DataInputStream(new BufferedInputStream(new FileInputStream(filePath)));
-            int buffferSize = 2048;
-            byte[] bufArray = new byte[buffferSize];
+            byte[] bufArray = new byte[BUFFERED_SIZE];
             dos.writeUTF(Server.START_HEAD);
             dos.flush();
             dos.writeLong(file.length());
@@ -66,8 +102,6 @@ public class Client {
         } finally {
             try {
                 dis.close();
-                dos.close();
-                socket.close();
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (NullPointerException e2) {
