@@ -1,0 +1,5 @@
+create database servertest;
+use servertest;
+create table student(_id int(3) auto_increment not null primary key,name char(10) not null,grade int(3) not null,className int(3) not null,sex int(1) not null);
+create table major (_id int(3) auto_increment primary key,name char(10) not null,major_number char(10) not null);
+create table elective (_id int(3) auto_increment primary key,student_id int(3) not null,major_id int(3) not null, FOREIGN KEY(student_id) REFERENCES student(_id) ON DELETE CASCADE, FOREIGN KEY(major_id) REFERENCES major(_id) ON DELETE CASCADE);
