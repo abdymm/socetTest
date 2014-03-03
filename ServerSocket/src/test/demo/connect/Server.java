@@ -99,6 +99,7 @@ public class Server {
     }
 
     private static boolean readAndWriteToFile(DataInputStream dataInputStream) {
+        checkDir();
         File outFile = new File(FILE_SAVE_PATH + System.currentTimeMillis());
         DataOutputStream fileOut = null;
         try {
