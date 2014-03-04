@@ -51,6 +51,7 @@ public class SocketConnect implements ActionListener, ClientConnectListener {
 
         ipInput = new JTextField(15);
         ipInput.setPreferredSize(new Dimension(150, 30));
+        ipInput.setText("127.0.0.1:8899");
         c.fill = GridBagConstraints.HORIZONTAL;
         c.insets = new Insets(5, 20, 0, 20);
         c.gridwidth = 2;

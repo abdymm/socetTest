@@ -5,7 +5,7 @@ import java.sql.*;
 public class DbConnect {
     public static final String STUDENT_TABLE_NAME = "student";
     public static final String MAJOR_TABLE_NAME = "major";
-    public static final String ELECTIVE = "elective";
+    public static final String ELECTIVE_TABLE_NAME = "elective";
 
     private static final String URL = "jdbc:mysql://127.0.0.1:3306/servertest";
     private static final String USER = "root";

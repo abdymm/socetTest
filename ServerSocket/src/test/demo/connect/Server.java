@@ -1,6 +1,11 @@
 
 package test.demo.connect;
 
+import test.demo.FileReslover;
+import test.demo.Student;
+import test.demo.db.MajorOperation;
+import test.demo.db.StudentOperation;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
@@ -12,6 +17,8 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.SQLException;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -23,8 +30,19 @@ public class Server {
     public static final String RESULT_CONNECT_SUCCESS = "CONNECT_SUCCESS";
     private static final String FILE_SAVE_PATH = "f://saved_file/";
     private static final int BUFFERED_SIZE = 2048;
+    private StudentOperation mStudentOperation;
+    private MajorOperation mMajorOperation;
 
-    public static void main(String args[]) throws IOException {
+    public static void main(String args[]){
+        try {
+            new Server().startServer();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+    
+    private void startServer() throws IOException {
         // 为了简单起见，所有的异常信息都往外抛
         int port = 8899;
         // 定义一个ServerSocket监听在端口8899上
@@ -52,7 +70,7 @@ public class Server {
     /**
      * 用来处理Socket请求的
      */
-    static class Task implements Runnable {
+    class Task implements Runnable {
 
         private Socket socket;
 
@@ -84,9 +102,16 @@ public class Server {
                 while (true) {
                     String check = dataInputStream.readUTF();
                     if (START_HEAD.equals(check)) {
-                        readAndWriteToFile(dataInputStream);
+                        String filepath = readAndWriteToFile(dataInputStream);
+                        FileReslover fileReslover = new FileReslover(filepath);
+                        List<Student> students = fileReslover.resolve();
+                        for(Student student : students) {
+                            mStudentOperation = new StudentOperation();
+                            mStudentOperation.insertStudent(student);
+                        }
                     } else {
                         writer.write(RESULT_ERROR1);
+                        writer.flush();
                     }
                 }
             } catch (Exception e) {
@@ -98,7 +123,7 @@ public class Server {
         }
     }
 
-    private static boolean readAndWriteToFile(DataInputStream dataInputStream) {
+    private static String readAndWriteToFile(DataInputStream dataInputStream) {
         checkDir();
         File outFile = new File(FILE_SAVE_PATH + System.currentTimeMillis());
         DataOutputStream fileOut = null;
@@ -122,10 +147,10 @@ public class Server {
                     break;
                 }
             }
-            return true;
+            return outFile.getAbsolutePath();
         } catch (Exception exception) {
             exception.printStackTrace();
-            return false;
+            return null;
         } finally {
             try {
                 if (fileOut != null) {

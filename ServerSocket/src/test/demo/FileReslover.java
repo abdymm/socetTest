@@ -21,7 +21,7 @@ public class FileReslover {
     }
 
     //Read the file and resolve file to Student list.
-    public void resolve() throws FileResloveErrorException {
+    public  List<Student> resolve() throws FileResloveErrorException {
         InputStreamReader reader = null;
         BufferedReader bufferedReader = null;
         try {
@@ -56,6 +56,7 @@ public class FileReslover {
                 }
             }
         }
+        return mStudents;
     }
 
     private void checkLine(String line) throws FileResloveErrorException {
