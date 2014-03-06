@@ -16,16 +16,20 @@ public class Client {
     private String ip = null;
     private int port = 8080;
     private ClientConnectListener mListener;
+    private ClientFileSendListener mFileSendListener;
     private static final int BUFFERED_SIZE = 2048;
     private boolean connected = false;
-    
 
     public Client(ClientConnectListener listener) {
         mListener = listener;
     }
 
-    public void setListener(ClientConnectListener listener){
+    public void setListener(ClientConnectListener listener) {
         mListener = listener;
+    }
+
+    public void setFileSendLitener(ClientFileSendListener clientFileSendListener) {
+         this.mFileSendListener = clientFileSendListener;
     }
 
     public void connect(final String address) {
@@ -70,43 +74,53 @@ public class Client {
         connected = false;
     }
 
-    public void sendFile(String filePath) {
-        DataOutputStream dos = null;
-        DataInputStream dis = null;
-        try {
-            File file = new File(filePath);
-            dos = new DataOutputStream(socket.getOutputStream());
-            dis = new DataInputStream(new BufferedInputStream(new FileInputStream(filePath)));
-            byte[] bufArray = new byte[BUFFERED_SIZE];
-            dos.writeUTF(Server.START_HEAD);
-            dos.flush();
-            dos.writeLong(file.length());
-            dos.flush();
-            while (true) {
-                int read = 0;
-                if (dis != null) {
-                    read = dis.read(bufArray);
+    public void sendFile(final String filePath) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                DataOutputStream dos = null;
+                DataInputStream dis = null;
+                try {
+                    File file = new File(filePath);
+                    dos = new DataOutputStream(socket.getOutputStream());
+                    dis = new DataInputStream(
+                            new BufferedInputStream(new FileInputStream(filePath)));
+                    byte[] bufArray = new byte[BUFFERED_SIZE];
+                    dos.writeUTF(Server.START_HEAD);
+                    dos.flush();
+                    dos.writeLong(file.length());
+                    dos.flush();
+                    if (mFileSendListener != null) {
+                        mFileSendListener.onProcess("start sending");
+                    }
+                    while (true) {
+                        int read = 0;
+                        if (dis != null) {
+                            read = dis.read(bufArray);
+                        }
+                        if (read == -1) {
+                            break;
+                        }
+                        dos.write(bufArray, 0, read);
+                    }
+                    mFileSendListener.onProcess("start success");
+                    dos.flush();
+                } catch (UnknownHostException e) {
+                    e.printStackTrace();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        dis.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (NullPointerException e2) {
+                    }
                 }
-                if (read == -1) {
-                    break;
-                }
-                dos.write(bufArray, 0, read);
             }
-            dos.flush();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                dis.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (NullPointerException e2) {
 
-            }
-        }
+        }).start();
     }
 }

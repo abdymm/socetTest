@@ -3,6 +3,7 @@ package test.demo.ui;
 
 import test.demo.connect.Client;
 import test.demo.connect.ClientConnectListener;
+import test.demo.connect.ClientFileSendListener;
 import test.demo.connect.Server;
 
 import java.awt.Container;
@@ -24,7 +25,7 @@ import javax.swing.filechooser.FileFilter;
 
 //由于我们在程序中要使用到File与FileFilter对象,因此要import File与FileFilter这两个类.
 
-public class FileUploader implements ActionListener,ClientConnectListener{
+public class FileUploader implements ActionListener,ClientFileSendListener{
     JFrame f = null;
     JLabel label = null;
     JFileChooser fileChooser = null;
@@ -34,6 +35,7 @@ public class FileUploader implements ActionListener,ClientConnectListener{
     JLabel stateLable = null;
     Client mClient;
     String filePath = null;
+    ProcessDialog processDialog = null;
 
     public FileUploader(Client client) {
         f = new JFrame("文件选择");
@@ -98,7 +100,7 @@ public class FileUploader implements ActionListener,ClientConnectListener{
         });
 
         this.mClient = client;
-        client.setListener(this);
+        client.setFileSendLitener(this);
     }
 
     // 处理用户按下"打开旧文件"按钮事件.
@@ -117,6 +119,7 @@ public class FileUploader implements ActionListener,ClientConnectListener{
             }
         } else if (e.getSource().equals(upload)) {
             mClient.sendFile(filePath);
+            processDialog = ProcessDialog.show(null, "开始");
         } else if (e.getSource().equals(disConnect)) {
             mClient.disConnect();
             System.exit(0);
@@ -124,16 +127,22 @@ public class FileUploader implements ActionListener,ClientConnectListener{
     }
 
     @Override
-    public void onConnectSuccess(boolean success) {
+    public void onError(String errorMessage) {
+        if (processDialog != null) {
+            processDialog.setMessage(errorMessage);
+        }
     }
 
     @Override
-    public void onConnectError(String errorMessage) {
+    public void onProcess(String message) {
+        if (processDialog != null) {
+            processDialog.setMessage(message);
+        }
     }
 
     @Override
-    public void onDisconnect() {
-        stateLable.setText("连接断开");
+    public void sendSuccess() {
+        
     }
 }
 

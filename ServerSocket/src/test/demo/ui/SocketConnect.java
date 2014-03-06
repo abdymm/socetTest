@@ -95,10 +95,4 @@ public class SocketConnect implements ActionListener, ClientConnectListener {
 
     }
 
-    @Override
-    public void onDisconnect() {
-        // TODO Auto-generated method stub
-
-    }
-
 }
