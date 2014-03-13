@@ -1,6 +1,8 @@
 
 package test.demo.connect;
 
+import test.demo.Log;
+
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -29,7 +31,7 @@ public class Client {
     }
 
     public void setFileSendLitener(ClientFileSendListener clientFileSendListener) {
-         this.mFileSendListener = clientFileSendListener;
+        this.mFileSendListener = clientFileSendListener;
     }
 
     public void connect(final String address) {
@@ -41,15 +43,20 @@ public class Client {
                     port = Integer.parseInt(address.substring(address.indexOf(":") + 1));
                     socket = new Socket(ip, port);
                     connected = true;
+                    DataInputStream dataInputStream;
+                    dataInputStream = new DataInputStream(socket.getInputStream());
+                    mListener.onConnectSuccess(true);
                     while (true) {
-                        DataInputStream dataInputStream;
-                        dataInputStream = new DataInputStream(socket.getInputStream());
-                        mListener.onConnectSuccess(true);
-                        while (true) {
-                            String returnStr = dataInputStream.readUTF();
-                            if (Server.RESULT_CONNECT_SUCCESS.equals(returnStr)) {
-                                mListener.onConnectSuccess(true);
-                            }
+                        String returnStr = dataInputStream.readUTF();
+                        Log.D("Get return code:" + returnStr);
+                        if (Server.RESULT_CONNECT_SUCCESS.equals(returnStr)) {
+                            mListener.onConnectSuccess(true);
+                        } else if (Server.RESULT_STATE_RESOLVE.equals(returnStr)
+                                || Server.RESULT_STATE_UPLOADING.equals(returnStr)
+                                || Server.RESULT_STATE_SUCCESS.equals(returnStr)) {
+                            mFileSendListener.onProcess(returnStr);
+                        } else {
+                            mFileSendListener.onError(returnStr);
                         }
                     }
                 } catch (UnknownHostException e) {
@@ -90,9 +97,6 @@ public class Client {
                     dos.flush();
                     dos.writeLong(file.length());
                     dos.flush();
-                    if (mFileSendListener != null) {
-                        mFileSendListener.onProcess("start sending");
-                    }
                     while (true) {
                         int read = 0;
                         if (dis != null) {
@@ -103,7 +107,6 @@ public class Client {
                         }
                         dos.write(bufArray, 0, read);
                     }
-                    mFileSendListener.onProcess("start success");
                     dos.flush();
                 } catch (UnknownHostException e) {
                     e.printStackTrace();

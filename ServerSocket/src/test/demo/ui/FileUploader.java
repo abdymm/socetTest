@@ -2,9 +2,7 @@
 package test.demo.ui;
 
 import test.demo.connect.Client;
-import test.demo.connect.ClientConnectListener;
 import test.demo.connect.ClientFileSendListener;
-import test.demo.connect.Server;
 
 import java.awt.Container;
 import java.awt.Dimension;
@@ -18,6 +16,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -25,7 +24,7 @@ import javax.swing.filechooser.FileFilter;
 
 //由于我们在程序中要使用到File与FileFilter对象,因此要import File与FileFilter这两个类.
 
-public class FileUploader implements ActionListener,ClientFileSendListener{
+public class FileUploader implements ActionListener, ClientFileSendListener {
     JFrame f = null;
     JLabel label = null;
     JFileChooser fileChooser = null;
@@ -35,7 +34,7 @@ public class FileUploader implements ActionListener,ClientFileSendListener{
     JLabel stateLable = null;
     Client mClient;
     String filePath = null;
-    ProcessDialog processDialog = null;
+    MyDialog processDialog = null;
 
     public FileUploader(Client client) {
         f = new JFrame("文件选择");
@@ -76,7 +75,7 @@ public class FileUploader implements ActionListener,ClientFileSendListener{
         c.gridx = 0;
         c.gridy = 0;
         c.insets = new Insets(10, 20, 0, 20); // top padding
-        contentPane.add(stateLable,c);
+        contentPane.add(stateLable, c);
 
         label = new JLabel(" ", JLabel.CENTER);
         label.setPreferredSize(new Dimension(400, 30));
@@ -85,8 +84,7 @@ public class FileUploader implements ActionListener,ClientFileSendListener{
         c.gridx = 0;
         c.gridy = 1;
         c.insets = new Insets(10, 20, 0, 20); // top padding
-        contentPane.add(label,c);
-
+        contentPane.add(label, c);
 
         f.pack();
         f.setVisible(true);
@@ -111,38 +109,60 @@ public class FileUploader implements ActionListener,ClientFileSendListener{
             int result = fileChooser.showOpenDialog(f);
             if (result == JFileChooser.APPROVE_OPTION) {
                 File file = fileChooser.getSelectedFile();
-                label.setText(file.getAbsolutePath() + " " + file.length()/1024 + "kb");
+                label.setText(file.getAbsolutePath() + " " + file.length() / 1024 + "kb");
                 filePath = file.getAbsolutePath();
                 upload.setEnabled(true);
             } else if (result == JFileChooser.CANCEL_OPTION) {
                 label.setText("你没有选取文件");
             }
         } else if (e.getSource().equals(upload)) {
-            mClient.sendFile(filePath);
-            processDialog = ProcessDialog.show(null, "开始");
+            createProcessDialog();
+            showDialog();
         } else if (e.getSource().equals(disConnect)) {
             mClient.disConnect();
             System.exit(0);
         }
     }
 
+    private void createProcessDialog() {
+        processDialog = new MyDialog();
+        processDialog.setOpaque(true);
+    }
+
+    private void showDialog() {
+        JDialog dialog = new JDialog(f);
+        dialog.getContentPane().add(processDialog);
+        dialog.pack();
+        dialog.setSize(460, 250);
+        dialog.setLocationRelativeTo(f);
+        dialog.setVisible(true);
+        mClient.sendFile(filePath);
+    }
+
     @Override
     public void onError(String errorMessage) {
         if (processDialog != null) {
-            processDialog.setMessage(errorMessage);
+            processDialog.changeErrorLable(errorMessage);
         }
     }
 
     @Override
-    public void onProcess(String message) {
+    public void onProcess(final String message) {
+        System.out.println("onProcess" + message + (processDialog == null));
         if (processDialog != null) {
-            processDialog.setMessage(message);
+            processDialog.changeText(message);
         }
     }
 
     @Override
     public void sendSuccess() {
-        
+
+    }
+
+    @Override
+    public void changeProcess(int process) {
+        // TODO Auto-generated method stub
+
     }
 }
 

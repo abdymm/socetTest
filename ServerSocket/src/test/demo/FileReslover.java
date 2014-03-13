@@ -1,6 +1,8 @@
 
 package test.demo;
 
+import test.demo.connect.FileResloveErrorException;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -126,13 +128,5 @@ public class FileReslover {
             e.printStackTrace();
             System.out.println("error:" + e.getMessage());
         }
-    }
-}
-
-class FileResloveErrorException extends Exception {
-    private static final long serialVersionUID = 1L;
-
-    public FileResloveErrorException(String msg) {
-        super(msg);
     }
 }

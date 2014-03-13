@@ -13,11 +13,8 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -28,12 +25,16 @@ public class Server {
     public static final String RESULT_ERROR1 = "Reuqest error";
     public static final String RESULT_SEND_SUCCESS = "Save file success";
     public static final String RESULT_CONNECT_SUCCESS = "CONNECT_SUCCESS";
+    public static final String RESULT_STATE_UPLOADING = "uploading...";
+    public static final String RESULT_STATE_RESOLVE = "resolving...";
+    public static final String RESULT_STATE_SUCCESS = "success";
+
     private static final String FILE_SAVE_PATH = "f://saved_file/";
     private static final int BUFFERED_SIZE = 2048;
     private StudentOperation mStudentOperation;
     private MajorOperation mMajorOperation;
 
-    public static void main(String args[]){
+    public static void main(String args[]) {
         try {
             new Server().startServer();
         } catch (IOException e) {
@@ -41,7 +42,7 @@ public class Server {
             e.printStackTrace();
         }
     }
-    
+
     private void startServer() throws IOException {
         // 为了简单起见，所有的异常信息都往外抛
         int port = 8899;
@@ -93,25 +94,37 @@ public class Server {
          */
         private void handleSocket() throws Exception {
             DataInputStream dataInputStream = null;
-            Writer writer = null;
+            DataOutputStream writer = null;
             try {
                 dataInputStream = new DataInputStream(new BufferedInputStream(
                         socket.getInputStream()));
 
-                writer = new OutputStreamWriter(socket.getOutputStream(), "UTF-8");
+                writer = new DataOutputStream(socket.getOutputStream());
                 while (true) {
                     String check = dataInputStream.readUTF();
                     if (START_HEAD.equals(check)) {
+                        // Start loading
+                        writeAndFlush(writer, RESULT_STATE_UPLOADING);
                         String filepath = readAndWriteToFile(dataInputStream);
+                        // Start resolve
+                        writeAndFlush(writer, RESULT_STATE_RESOLVE);
                         FileReslover fileReslover = new FileReslover(filepath);
-                        List<Student> students = fileReslover.resolve();
-                        for(Student student : students) {
-                            mStudentOperation = new StudentOperation();
-                            mStudentOperation.insertStudent(student);
+                        List<Student> students = null;
+                        try {
+                            students = fileReslover.resolve();
+                        } catch (test.demo.connect.FileResloveErrorException e) {
+                            writeAndFlush(writer, e.getMessage());
+                        }
+                        if (students != null && students.size() != 0) {
+                            for (Student student : students) {
+                                mStudentOperation = new StudentOperation();
+                                mStudentOperation.insertStudent(student);
+                            }
+                            // Success
+                            writeAndFlush(writer, RESULT_STATE_SUCCESS);
                         }
                     } else {
-                        writer.write(RESULT_ERROR1);
-                        writer.flush();
+                        writeAndFlush(writer, RESULT_ERROR1);
                     }
                 }
             } catch (Exception e) {
@@ -121,6 +134,11 @@ public class Server {
                 socket.close();
             }
         }
+    }
+
+    private void writeAndFlush(DataOutputStream writer, String message) throws IOException {
+        writer.writeUTF(message);
+        writer.flush();
     }
 
     private static String readAndWriteToFile(DataInputStream dataInputStream) {
