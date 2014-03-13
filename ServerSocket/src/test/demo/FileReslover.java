@@ -2,6 +2,7 @@
 package test.demo;
 
 import test.demo.connect.FileResloveErrorException;
+import test.demo.connect.Server;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -17,13 +18,16 @@ public class FileReslover {
     private List<Student> mStudents;
     private int mCurrentLine = 1;
 
-    public FileReslover(String fileName) {
+    private Server server;
+
+    public FileReslover(String fileName, Server server) {
         this.mFileName = fileName;
         this.mStudents = new ArrayList<Student>();
+        this.server = server;
     }
 
     //Read the file and resolve file to Student list.
-    public  List<Student> resolve() throws FileResloveErrorException {
+    public  List<Student> resolve() {
         InputStreamReader reader = null;
         BufferedReader bufferedReader = null;
         try {
@@ -31,8 +35,11 @@ public class FileReslover {
             bufferedReader = new BufferedReader(reader);
             while (bufferedReader.ready()) {
                 String line = bufferedReader.readLine();
-                System.out.println(line);
-                checkLine(line);
+                try {
+                    checkLine(line);
+                } catch (FileResloveErrorException e) {
+                    server.writeAndFlush(e.getMessage());
+                }
                 mCurrentLine++;
             }
             System.out.println("mStudents = " + mStudents);
@@ -121,12 +128,12 @@ public class FileReslover {
     }
 
     //test code
-    public static void main(String args []) {
-        try {
-            new FileReslover("D://test.txt").resolve();
-        } catch (FileResloveErrorException e) {
-            e.printStackTrace();
-            System.out.println("error:" + e.getMessage());
-        }
-    }
+//    public static void main(String args []) {
+//        try {
+//            new FileReslover("D://test.txt").resolve();
+//        } catch (FileResloveErrorException e) {
+//            e.printStackTrace();
+//            System.out.println("error:" + e.getMessage());
+//        }
+//    }
 }

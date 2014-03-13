@@ -33,6 +33,7 @@ public class Server {
     private static final int BUFFERED_SIZE = 2048;
     private StudentOperation mStudentOperation;
     private MajorOperation mMajorOperation;
+    private DataOutputStream mWriter = null;
 
     public static void main(String args[]) {
         try {
@@ -94,26 +95,25 @@ public class Server {
          */
         private void handleSocket() throws Exception {
             DataInputStream dataInputStream = null;
-            DataOutputStream writer = null;
             try {
                 dataInputStream = new DataInputStream(new BufferedInputStream(
                         socket.getInputStream()));
 
-                writer = new DataOutputStream(socket.getOutputStream());
+                mWriter = new DataOutputStream(socket.getOutputStream());
                 while (true) {
                     String check = dataInputStream.readUTF();
                     if (START_HEAD.equals(check)) {
                         // Start loading
-                        writeAndFlush(writer, RESULT_STATE_UPLOADING);
+                        writeAndFlush(RESULT_STATE_UPLOADING);
                         String filepath = readAndWriteToFile(dataInputStream);
                         // Start resolve
-                        writeAndFlush(writer, RESULT_STATE_RESOLVE);
-                        FileReslover fileReslover = new FileReslover(filepath);
+                        writeAndFlush(RESULT_STATE_RESOLVE);
+                        FileReslover fileReslover = new FileReslover(filepath, Server.this);
                         List<Student> students = null;
                         try {
                             students = fileReslover.resolve();
                         } catch (test.demo.connect.FileResloveErrorException e) {
-                            writeAndFlush(writer, e.getMessage());
+                            writeAndFlush(e.getMessage());
                         }
                         if (students != null && students.size() != 0) {
                             for (Student student : students) {
@@ -121,10 +121,10 @@ public class Server {
                                 mStudentOperation.insertStudent(student);
                             }
                             // Success
-                            writeAndFlush(writer, RESULT_STATE_SUCCESS);
+                            writeAndFlush(RESULT_STATE_SUCCESS);
                         }
                     } else {
-                        writeAndFlush(writer, RESULT_ERROR1);
+                        writeAndFlush(RESULT_ERROR1);
                     }
                 }
             } catch (Exception e) {
@@ -136,9 +136,11 @@ public class Server {
         }
     }
 
-    private void writeAndFlush(DataOutputStream writer, String message) throws IOException {
-        writer.writeUTF(message);
-        writer.flush();
+    public void writeAndFlush(String message) throws IOException {
+        if (mWriter != null) {
+            mWriter.writeUTF(message);
+            mWriter.flush();
+        }
     }
 
     private static String readAndWriteToFile(DataInputStream dataInputStream) {
