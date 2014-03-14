@@ -92,22 +92,22 @@ public class StudentOperation extends Operation {
         return out;
     }
 
-    // simple test code
-    public static void main(String args[]) {
-        Student student = new Student();
-        student.setName("Huang");
-        student.setGrade(12);
-        student.setClassNumber(1);
-        student.setSex(true);
-        try {
-            new StudentOperation().insertStudent(student);
-        } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
+//    // simple test code
+//    public static void main(String args[]) {
+//        Student student = new Student();
+//        student.setName("Huang");
+//        student.setGrade(12);
+//        student.setClassNumber(1);
+//        student.setSex(true);
+//        try {
+//            new StudentOperation().insertStudent(student);
+//        } catch (SQLException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        } catch (ClassNotFoundException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
+//    }
 
 }

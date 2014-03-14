@@ -118,7 +118,9 @@ public class Server {
                         if (students != null && students.size() != 0) {
                             for (Student student : students) {
                                 mStudentOperation = new StudentOperation();
-                                mStudentOperation.insertStudent(student);
+                                if (!mStudentOperation.insertStudent(student)){
+                                    writeAndFlush("Warning !!! student :{" + student + "} exist!!!");
+                                }
                             }
                             // Success
                             writeAndFlush(RESULT_STATE_SUCCESS);

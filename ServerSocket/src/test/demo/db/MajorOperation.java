@@ -97,26 +97,26 @@ public class MajorOperation extends Operation {
         return out;
     }
 
-    // simple test
-    public static void main(String args[]) {
-        try {
-            MajorOperation majorOperation = new MajorOperation();
-            Major major = new Major();
-            major.setClassName("hightmath");
-            major.setMajorNum("2222");
-            major.setTeacher("Yadong");
-            majorOperation.insertMajor(major);
-            System.out.println("====");
-            System.out.println(majorOperation.getMarjor("math"));
-            System.out.println("====");
-            System.out.println(majorOperation.getAllMajor());
-
-        } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
+//    // simple test
+//    public static void main(String args[]) {
+//        try {
+//            MajorOperation majorOperation = new MajorOperation();
+//            Major major = new Major();
+//            major.setClassName("hightmath");
+//            major.setMajorNum("2222");
+//            major.setTeacher("Yadong");
+//            majorOperation.insertMajor(major);
+//            System.out.println("====");
+//            System.out.println(majorOperation.getMarjor("math"));
+//            System.out.println("====");
+//            System.out.println(majorOperation.getAllMajor());
+//
+//        } catch (SQLException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        } catch (ClassNotFoundException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
+//    }
 }
