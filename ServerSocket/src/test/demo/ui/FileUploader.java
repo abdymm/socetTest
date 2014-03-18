@@ -22,8 +22,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.filechooser.FileFilter;
 
-//由于我们在程序中要使用到File与FileFilter对象,因此要import File与FileFilter这两个类.
-
 public class FileUploader implements ActionListener, ClientFileSendListener {
     JFrame f = null;
     JLabel label = null;

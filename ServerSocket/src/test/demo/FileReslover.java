@@ -3,6 +3,7 @@ package test.demo;
 
 import test.demo.connect.FileResloveErrorException;
 import test.demo.connect.Server;
+import test.demo.db.MajorOperation;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -10,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +29,7 @@ public class FileReslover {
     }
 
     //Read the file and resolve file to Student list.
-    public  List<Student> resolve() {
+    public  List<Student> resolve() throws ClassNotFoundException, SQLException {
         InputStreamReader reader = null;
         BufferedReader bufferedReader = null;
         try {
@@ -68,7 +70,7 @@ public class FileReslover {
         return mStudents;
     }
 
-    private void checkLine(String line) throws FileResloveErrorException {
+    private void checkLine(String line) throws FileResloveErrorException, ClassNotFoundException, SQLException {
         String [] values = line.split(" ");
         if (values.length != Student.LINE) {
             throw new FileResloveErrorException("File reslove error, at line " + mCurrentLine
@@ -114,14 +116,27 @@ public class FileReslover {
         }
         student.setClassNumber(classNumber);
 
-        //Major check TODO check in db.
+        //Major check 1.Must choose at lest Student.MAJOIR_COUNT major
+        //2. Major id must exist in db
         String [] majors = values[5].split(Student.MAJOR_SPLIT);
         if (majors.length < Student.MAJOIR_COUNT) {
             throw new FileResloveErrorException("File reslove error, at line " + mCurrentLine
                     + ", a student must have at lest " + Student.MAJOIR_COUNT + " major.");
         }
+        MajorOperation majorOperation = MajorOperation.getInstance();
         for(String major : majors) {
-            student.addMajor(major);
+            int majorId = -1;
+            try {
+                majorId = Integer.parseInt(major);
+            } catch (NumberFormatException e) {
+                throw new FileResloveErrorException("File reslove error, at line " + mCurrentLine
+                        + ", must input major id instead the major name");
+            }
+            if (!majorOperation.exist(majorId)) {
+                throw new FileResloveErrorException("File reslove error, at line " + mCurrentLine
+                        + ", major id " + majorId + " Not find");
+            }
+            student.addMajor(majorId);
         }
 
         mStudents.add(student);

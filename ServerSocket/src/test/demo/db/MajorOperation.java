@@ -17,9 +17,55 @@ public class MajorOperation extends Operation {
     private static final String WHERE_SQL_NAME = " WHERE name=?";
     private static final String INSERT_SQL = "INSERT INTO " + DbConnect.MAJOR_TABLE_NAME
             + " (name,major_number,teacher) VALUES (?,?,?)";
+    private static final String INSERT_ELECTIVE = "INSERT INTO " + DbConnect.ELECTIVE_TABLE_NAME
+            + " (student_id, major_id) VALUES(?,?)";
+    private List<Major> mMarjors = new ArrayList<Major>();
+    private static MajorOperation sMajorOperation = null;
 
-    public MajorOperation() throws ClassNotFoundException, SQLException {
+    private MajorOperation() throws ClassNotFoundException, SQLException {
         super();
+        cacheMarjors();
+    }
+
+    public static MajorOperation getInstance() throws ClassNotFoundException, SQLException {
+        if (sMajorOperation == null) {
+            sMajorOperation = new MajorOperation();
+        }
+        return sMajorOperation;
+    }
+
+    private void cacheMarjors() throws SQLException {
+        mMarjors = getAllMajor();
+    }
+
+    public boolean exist(int majorId) {
+        for(Major major : mMarjors) {
+            if (major.getId() == majorId) {
+              return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean addMajor(int studentId, int[]majorId) throws SQLException {
+        boolean output = true;
+        ResultSet result = null;
+        PreparedStatement preparedStatement = null;
+        preparedStatement = getPreparedStatement(INSERT_ELECTIVE, Statement.RETURN_GENERATED_KEYS);
+        for (int mId : majorId) {
+            preparedStatement.setInt(1, studentId);
+            preparedStatement.setInt(2, mId);
+            preparedStatement.executeUpdate();
+            int id = -1;
+            result = preparedStatement.getGeneratedKeys();
+            if (result.next()) {
+                id = result.getInt(1);
+            }
+            if (id <= 0) {
+                 output = false;
+            }
+        }
+        return output;
     }
 
     public boolean insertMajor(Major major) throws SQLException {

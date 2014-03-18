@@ -18,9 +18,17 @@ public class StudentOperation extends Operation {
     private static final String SELECT_SQL = "select _id,name,grade,className,sex from "
             + DbConnect.STUDENT_TABLE_NAME;
     private static final String SELECTION_SQL_NAME = "WHERE name=?";
+    private static StudentOperation sStudentOperation = null;
 
-    public StudentOperation() throws ClassNotFoundException, SQLException {
+    private StudentOperation() throws ClassNotFoundException, SQLException {
         super();
+    }
+
+    public static StudentOperation getInstance() throws ClassNotFoundException, SQLException {
+        if (sStudentOperation == null) {
+            sStudentOperation = new StudentOperation();
+        }
+        return sStudentOperation;
     }
 
     private boolean chechStudentExist(Student student) throws SQLException {
@@ -33,7 +41,7 @@ public class StudentOperation extends Operation {
         return false;
     }
 
-    public boolean insertStudent(Student student) throws SQLException {
+    public boolean insertStudent(Student student) throws SQLException, ClassNotFoundException {
         if (chechStudentExist(student)) {
             Log.e("Student " + student + " have exist!!");
             return false;
@@ -54,6 +62,11 @@ public class StudentOperation extends Operation {
             if (result.next()) {
                 createdId = result.getInt(1);
             }
+            //put marjor info.
+            if (createdId != -1) {
+                MajorOperation majorOperation = MajorOperation.getInstance();
+                majorOperation.addMajor(createdId, parseIntegerArr(student.getMajors()));
+            }
         } finally {
             if (result != null) {
                 result.close();
@@ -62,6 +75,14 @@ public class StudentOperation extends Operation {
         }
         System.out.println(createdId);
         return createdId != -1;
+    }
+
+    private int[] parseIntegerArr(List<Integer> input) {
+        int [] output = new int [input.size()];
+        for (int index = 0;index < output.length;index++) {
+            output[index] = input.get(index);
+        }
+        return output;
     }
 
     public List<Student> getStudent(String name) throws SQLException {

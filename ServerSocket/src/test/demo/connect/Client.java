@@ -21,6 +21,7 @@ public class Client {
     private ClientFileSendListener mFileSendListener;
     private static final int BUFFERED_SIZE = 2048;
     private boolean connected = false;
+    private boolean isRuning = true;
 
     public Client(ClientConnectListener listener) {
         mListener = listener;
@@ -46,7 +47,7 @@ public class Client {
                     DataInputStream dataInputStream;
                     dataInputStream = new DataInputStream(socket.getInputStream());
                     mListener.onConnectSuccess(true);
-                    while (true) {
+                    while (isRuning) {
                         String returnStr = dataInputStream.readUTF();
                         Log.D("Get return code:" + returnStr);
                         if (Server.RESULT_CONNECT_SUCCESS.equals(returnStr)) {
@@ -73,6 +74,7 @@ public class Client {
     public void disConnect() {
         if (connected) {
             try {
+                isRuning = false;
                 socket.close();
             } catch (IOException e) {
                 e.printStackTrace();

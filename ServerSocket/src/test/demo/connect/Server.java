@@ -32,7 +32,6 @@ public class Server {
     private static final String FILE_SAVE_PATH = "f://saved_file/";
     private static final int BUFFERED_SIZE = 2048;
     private StudentOperation mStudentOperation;
-    private MajorOperation mMajorOperation;
     private DataOutputStream mWriter = null;
 
     public static void main(String args[]) {
@@ -116,14 +115,17 @@ public class Server {
                             writeAndFlush(e.getMessage());
                         }
                         if (students != null && students.size() != 0) {
+                            int success = 0;
                             for (Student student : students) {
-                                mStudentOperation = new StudentOperation();
+                                mStudentOperation = StudentOperation.getInstance();
                                 if (!mStudentOperation.insertStudent(student)){
                                     writeAndFlush("Warning !!! student :{" + student + "} exist!!!");
+                                } else {
+                                    success++;
                                 }
                             }
                             // Success
-                            writeAndFlush(RESULT_STATE_SUCCESS);
+                            writeAndFlush("Insert " + success + " students");
                         }
                     } else {
                         writeAndFlush(RESULT_ERROR1);

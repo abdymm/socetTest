@@ -16,7 +16,7 @@ public class Student {
     private int mClassNumber;
     // the six of the student , true is boy, and false is girl.
     private boolean mSex;
-    private List<String> mMajors = new ArrayList<String>();
+    private List<Integer> mMajors = new ArrayList<Integer>();
 
     public int getmId() {
         return mId;
@@ -62,11 +62,11 @@ public class Student {
         this.mClassNumber = classNumber;
     }
 
-    public List<String> getMajors() {
+    public List<Integer> getMajors() {
         return mMajors;
     }
 
-    public void addMajor(String major) {
+    public void addMajor(Integer major) {
         mMajors.add(major);
     }
 
