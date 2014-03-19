@@ -40,7 +40,7 @@ public class FileReslover {
                 try {
                     checkLine(line);
                 } catch (FileResloveErrorException e) {
-                    server.writeAndFlush(e.getMessage());
+                    server.writeError(e.getMessage());
                 }
                 mCurrentLine++;
             }

@@ -3,7 +3,6 @@ package test.demo.connect;
 
 import test.demo.FileReslover;
 import test.demo.Student;
-import test.demo.db.MajorOperation;
 import test.demo.db.StudentOperation;
 
 import java.io.BufferedInputStream;
@@ -25,9 +24,10 @@ public class Server {
     public static final String RESULT_ERROR1 = "Reuqest error";
     public static final String RESULT_SEND_SUCCESS = "Save file success";
     public static final String RESULT_CONNECT_SUCCESS = "CONNECT_SUCCESS";
-    public static final String RESULT_STATE_UPLOADING = "uploading...";
-    public static final String RESULT_STATE_RESOLVE = "resolving...";
-    public static final String RESULT_STATE_SUCCESS = "success";
+    public static final String RESULT_PROCESS_CHANGE_PREFIX = "process:";
+    public static final String RESULT_WARNING_PREFIX = "warning:    ";
+    public static final String RESULT_ERROR_PREFIX = "error:    ";
+    public static final String RESULT_INFO_PREFIX = "info:    ";
 
     private static final String FILE_SAVE_PATH = "f://saved_file/";
     private static final int BUFFERED_SIZE = 2048;
@@ -44,16 +44,12 @@ public class Server {
     }
 
     private void startServer() throws IOException {
-        // 为了简单起见，所有的异常信息都往外抛
         int port = 8899;
-        // 定义一个ServerSocket监听在端口8899上
         ThreadPoolExecutor executor = new ThreadPoolExecutor(5, 10, 1L, TimeUnit.HOURS,
                 new LinkedBlockingDeque<Runnable>());
         ServerSocket server = new ServerSocket(port);
         while (true) {
-            // server尝试接收其他Socket的连接请求，server的accept方法是阻塞式的
             Socket socket = server.accept();
-            // 每接收到一个Socket就建立一个新的线程来处理它
             Task task = new Task(socket);
             executor.execute(task);
         }
@@ -103,10 +99,12 @@ public class Server {
                     String check = dataInputStream.readUTF();
                     if (START_HEAD.equals(check)) {
                         // Start loading
-                        writeAndFlush(RESULT_STATE_UPLOADING);
+                        writeInfo("Start uploding...");
+                        changeProcess(0);
                         String filepath = readAndWriteToFile(dataInputStream);
+                        changeProcess(10);
                         // Start resolve
-                        writeAndFlush(RESULT_STATE_RESOLVE);
+                        writeInfo("Start reslove...");
                         FileReslover fileReslover = new FileReslover(filepath, Server.this);
                         List<Student> students = null;
                         try {
@@ -114,25 +112,32 @@ public class Server {
                         } catch (test.demo.connect.FileResloveErrorException e) {
                             writeAndFlush(e.getMessage());
                         }
+                        changeProcess(20);
                         if (students != null && students.size() != 0) {
                             int success = 0;
+                            int worked = 0;
                             for (Student student : students) {
                                 mStudentOperation = StudentOperation.getInstance();
                                 if (!mStudentOperation.insertStudent(student)){
-                                    writeAndFlush("Warning !!! student :{" + student + "} exist!!!");
+                                    writeWarning("student :{" + student + "} exist!!!");
                                 } else {
                                     success++;
                                 }
+                                worked++;
+                                float finished = (float)worked/students.size() * 80;
+                                changeProcess((int)(20 + finished));
                             }
                             // Success
-                            writeAndFlush("Insert " + success + " students");
+                            writeInfo("Insert " + success + " students");
                         }
+                        changeProcess(100);
                     } else {
-                        writeAndFlush(RESULT_ERROR1);
+                        writeError(RESULT_ERROR1);
                     }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+                writeError(e.getMessage());
             } finally {
                 dataInputStream.close();
                 socket.close();
@@ -140,7 +145,23 @@ public class Server {
         }
     }
 
-    public void writeAndFlush(String message) throws IOException {
+    public void writeWarning(String warning) throws IOException {
+        writeAndFlush(RESULT_WARNING_PREFIX + warning);
+    }
+
+    public void writeError(String error) throws IOException {
+        writeAndFlush(RESULT_ERROR_PREFIX + error);
+    }
+
+    public void writeInfo(String info) throws IOException {
+        writeAndFlush(RESULT_INFO_PREFIX + info);
+    }
+
+    public void changeProcess(int process) throws IOException {
+        writeAndFlush(RESULT_PROCESS_CHANGE_PREFIX + process);
+    }
+
+    private void writeAndFlush(String message) throws IOException {
         if (mWriter != null) {
             mWriter.writeUTF(message);
             mWriter.flush();

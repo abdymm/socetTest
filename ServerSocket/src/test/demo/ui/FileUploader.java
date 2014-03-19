@@ -131,36 +131,24 @@ public class FileUploader implements ActionListener, ClientFileSendListener {
         JDialog dialog = new JDialog(f);
         dialog.getContentPane().add(processDialog);
         dialog.pack();
-        dialog.setSize(460, 250);
+        dialog.setSize(340, 180);
         dialog.setLocationRelativeTo(f);
         dialog.setVisible(true);
         mClient.sendFile(filePath);
     }
 
     @Override
-    public void onError(String errorMessage) {
+    public void loginfo(String errorMessage) {
         if (processDialog != null) {
             processDialog.changeErrorLable(errorMessage);
         }
     }
 
     @Override
-    public void onProcess(final String message) {
-        System.out.println("onProcess" + message + (processDialog == null));
-        if (processDialog != null) {
-            processDialog.changeText(message);
-        }
-    }
-
-    @Override
-    public void sendSuccess() {
-
-    }
-
-    @Override
     public void changeProcess(int process) {
-        // TODO Auto-generated method stub
-
+        if (processDialog != null) {
+            processDialog.changeProcess(process);
+        }
     }
 }
 

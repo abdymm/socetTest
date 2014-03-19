@@ -3,43 +3,60 @@ package test.demo.ui;
 import java.awt.Rectangle;
 import java.awt.TextArea;
 
-import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 
-public class MyDialog extends JPanel
-        implements SocketListener{
+public class MyDialog extends JPanel {
+    private static final long serialVersionUID = 1L;
+
     private TextArea errorLable;
-    private JLabel statusLable;
+    private JProgressBar progressBar;
 
     public MyDialog() {
         super();
 
         setLayout(null);
         // Create the demo's UI.
-        statusLable = new JLabel("status");
-        statusLable.setBounds(new Rectangle(5, 10, 100, 25));
+        progressBar = new JProgressBar();
+        progressBar.setBounds(new Rectangle(5, 10, 300, 15));
 
         errorLable = new TextArea(20, 50);
-        errorLable.setBounds(new Rectangle(110, 10, 300, 200));
+        errorLable.setBounds(new Rectangle(5, 40, 300, 100));
 
-
-        add(statusLable, null);
+        add(progressBar, null);
         add(errorLable, null);
         setBounds(new Rectangle(0, 0, 400, 200));
     }
 
-    @Override
     public void changeErrorLable(String process) {
         errorLable.append(process + "\n");
     }
 
-    @Override
-    public void changeText(String text) {
-        statusLable.setText(text);
+    public void changeProcess(int process) {
+        progressBar.setValue(process);
     }
-}
 
-interface SocketListener {
-    public void changeErrorLable(String process);
-    public void changeText(String text);
+//    //test codes
+//    public static void main(String args []) {
+//        JFrame dialog = new JFrame();
+//        final MyDialog dialog2 = new MyDialog();
+//        dialog.getContentPane().add(dialog2);
+//        dialog.pack();
+//        dialog.setSize(340, 180);
+//        dialog.setVisible(true);
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                for (int i = 1 ;i <= 100;i++) {
+//                    dialog2.changeProcess(i);
+//                    try {
+//                        Thread.sleep(100);
+//                    } catch (InterruptedException e) {
+//                        // TODO Auto-generated catch block
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }
+//        }).start();
+//    }
 }

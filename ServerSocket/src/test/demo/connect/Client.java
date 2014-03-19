@@ -27,10 +27,6 @@ public class Client {
         mListener = listener;
     }
 
-    public void setListener(ClientConnectListener listener) {
-        mListener = listener;
-    }
-
     public void setFileSendLitener(ClientFileSendListener clientFileSendListener) {
         this.mFileSendListener = clientFileSendListener;
     }
@@ -52,12 +48,11 @@ public class Client {
                         Log.D("Get return code:" + returnStr);
                         if (Server.RESULT_CONNECT_SUCCESS.equals(returnStr)) {
                             mListener.onConnectSuccess(true);
-                        } else if (Server.RESULT_STATE_RESOLVE.equals(returnStr)
-                                || Server.RESULT_STATE_UPLOADING.equals(returnStr)
-                                || Server.RESULT_STATE_SUCCESS.equals(returnStr)) {
-                            mFileSendListener.onProcess(returnStr);
+                        } else if (returnStr.startsWith(Server.RESULT_PROCESS_CHANGE_PREFIX)) {
+                            mFileSendListener.changeProcess(Integer.parseInt(returnStr
+                                    .substring(Server.RESULT_PROCESS_CHANGE_PREFIX.length())));
                         } else {
-                            mFileSendListener.onError(returnStr);
+                            mFileSendListener.loginfo(returnStr);
                         }
                     }
                 } catch (UnknownHostException e) {
