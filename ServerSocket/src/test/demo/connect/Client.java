@@ -61,6 +61,9 @@ public class Client {
                 } catch (IOException e) {
                     e.printStackTrace();
                     mListener.onConnectError(e.getMessage());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    mListener.onConnectError(e.getMessage());
                 }
             }
         }).start();

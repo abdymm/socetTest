@@ -15,7 +15,9 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 public class SocketConnect implements ActionListener, ClientConnectListener {
@@ -85,14 +87,13 @@ public class SocketConnect implements ActionListener, ClientConnectListener {
 
     @Override
     public void onConnectSuccess(boolean success) {
-            SocketConnect.this.frame.dispose();
-            new FileUploader(client);
+        SocketConnect.this.frame.dispose();
+        new FileUploader(client);
     }
 
     @Override
     public void onConnectError(String errorMessage) {
-        // TODO Auto-generated method stub
-
+        JOptionPane.showConfirmDialog(frame, errorMessage, "warning", JOptionPane.CLOSED_OPTION) ;
     }
 
 }
