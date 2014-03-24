@@ -2,7 +2,7 @@
 package test.demo.db;
 
 import test.demo.Log;
-import test.demo.Student;
+import test.demo.Staff;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -31,9 +31,9 @@ public class StudentOperation extends Operation {
         return sStudentOperation;
     }
 
-    private boolean chechStudentExist(Student student) throws SQLException {
-        List<Student> students = getStudent(student.getName());
-        for (Student s : students) {
+    private boolean chechStudentExist(Staff student) throws SQLException {
+        List<Staff> students = getStudent(student.getName());
+        for (Staff s : students) {
             if (s.equals(student)) {
                 return true;
             }
@@ -41,7 +41,7 @@ public class StudentOperation extends Operation {
         return false;
     }
 
-    public boolean insertStudent(Student student) throws SQLException, ClassNotFoundException {
+    public boolean insertStudent(Staff student) throws SQLException, ClassNotFoundException {
         if (chechStudentExist(student)) {
             Log.e("Student " + student + " have exist!!");
             return false;
@@ -85,8 +85,8 @@ public class StudentOperation extends Operation {
         return output;
     }
 
-    public List<Student> getStudent(String name) throws SQLException {
-        List<Student> out = new ArrayList<Student>();
+    public List<Staff> getStudent(String name) throws SQLException {
+        List<Staff> out = new ArrayList<Staff>();
         PreparedStatement preparedStatement = null;
         ResultSet result = null;
         try {
@@ -95,7 +95,7 @@ public class StudentOperation extends Operation {
             preparedStatement.setString(1, name);
             result = preparedStatement.executeQuery();
             while (result.next()) {
-                Student student = new Student();
+                Staff student = new Staff();
                 student.setId(result.getInt(1));
                 student.setName(result.getString(2));
                 student.setGrade(result.getInt(3));

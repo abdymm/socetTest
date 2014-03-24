@@ -2,7 +2,8 @@
 package test.demo.connect;
 
 import test.demo.FileReslover;
-import test.demo.Student;
+import test.demo.PunchRecordsReslover;
+import test.demo.Staff;
 import test.demo.db.StudentOperation;
 
 import java.io.BufferedInputStream;
@@ -105,8 +106,9 @@ public class Server {
                         changeProcess(10);
                         // Start resolve
                         writeInfo("Start reslove...");
-                        FileReslover fileReslover = new FileReslover(filepath, Server.this);
-                        List<Student> students = null;
+                        //TODO error.....here
+                        FileReslover fileReslover = new PunchRecordsReslover(filepath, Server.this);
+                        List<Staff> students = null;
                         try {
                             students = fileReslover.resolve();
                         } catch (test.demo.connect.FileResloveErrorException e) {
@@ -116,7 +118,7 @@ public class Server {
                         if (students != null && students.size() != 0) {
                             int success = 0;
                             int worked = 0;
-                            for (Student student : students) {
+                            for (Staff student : students) {
                                 mStudentOperation = StudentOperation.getInstance();
                                 if (!mStudentOperation.insertStudent(student)){
                                     writeWarning("student :{" + student + "} exist!!!");

@@ -4,7 +4,7 @@ package test.demo;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Student {
+public class Staff {
     public static final int LINE = 6;
     public static final String SEX_BOY = "1";
     public static final String SEX_GIRL = "0";
@@ -78,11 +78,11 @@ public class Student {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof Student)) {
+        if (!(obj instanceof Staff)) {
             return false;
         }
         else {
-            Student student = (Student) obj;
+            Staff student = (Staff) obj;
             return mName.equals(student.getName()) && mGrade == student.getGrade()
                     && mClassNumber == student.getClassNumber() && mSex == student.getSex();
         }

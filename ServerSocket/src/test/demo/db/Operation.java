@@ -7,14 +7,16 @@ import java.sql.SQLException;
 
 public class Operation {
     private DbConnect mDbConnect;
-    private Connection mConnection;
+    protected Connection mConnection;
 
-    public Operation() throws ClassNotFoundException, SQLException {
+    protected Operation() throws ClassNotFoundException, SQLException {
         mDbConnect = DbConnect.getInstance();
         mConnection = mDbConnect.getConnection();
     }
 
     protected PreparedStatement getPreparedStatement(String sql, int returnd) throws SQLException {
+    	//Do not auto commit.
+    	mConnection.setAutoCommit(false);
         if (returnd != -1) {
             return mConnection.prepareStatement(sql, returnd);
         }
