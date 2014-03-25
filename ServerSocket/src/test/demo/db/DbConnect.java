@@ -3,10 +3,8 @@ package test.demo.db;
 import java.sql.*;
 
 public class DbConnect {
-    public static final String STUDENT_TABLE_NAME = "student";
-    public static final String MAJOR_TABLE_NAME = "major";
-    public static final String ELECTIVE_TABLE_NAME = "elective";
     public static final String RECORD_TABLE_NAME = "record";
+    public static final String STAFF_TABLE_NAME = "staff";
 
     private static final String URL = "jdbc:mysql://127.0.0.1:3306/servertest";
     private static final String USER = "root";

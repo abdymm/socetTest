@@ -1,11 +1,6 @@
 
 package test.demo.connect;
 
-import test.demo.FileReslover;
-import test.demo.PunchRecordsReslover;
-import test.demo.Staff;
-import test.demo.db.StudentOperation;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
@@ -20,6 +15,11 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import test.demo.FileReslover;
+import test.demo.PunchRecordsReslover;
+import test.demo.Record;
+import test.demo.Staff;
+
 public class Server {
     public static final String START_HEAD = "FILE_START";
     public static final String RESULT_ERROR1 = "Reuqest error";
@@ -32,7 +32,6 @@ public class Server {
 
     private static final String FILE_SAVE_PATH = "f://saved_file/";
     private static final int BUFFERED_SIZE = 2048;
-    private StudentOperation mStudentOperation;
     private DataOutputStream mWriter = null;
 
     public static void main(String args[]) {
@@ -107,32 +106,32 @@ public class Server {
                         // Start resolve
                         writeInfo("Start reslove...");
                         //TODO error.....here
-                        FileReslover fileReslover = new PunchRecordsReslover(filepath, Server.this);
+                        FileReslover<Record> fileReslover = new PunchRecordsReslover(filepath, Server.this);
                         List<Staff> students = null;
-                        try {
-                            students = fileReslover.resolve();
-                        } catch (test.demo.connect.FileResloveErrorException e) {
-                            writeAndFlush(e.getMessage());
-                        }
-                        changeProcess(20);
-                        if (students != null && students.size() != 0) {
-                            int success = 0;
-                            int worked = 0;
-                            for (Staff student : students) {
-                                mStudentOperation = StudentOperation.getInstance();
-                                if (!mStudentOperation.insertStudent(student)){
-                                    writeWarning("student :{" + student + "} exist!!!");
-                                } else {
-                                    success++;
-                                }
-                                worked++;
-                                float finished = (float)worked/students.size() * 80;
-                                changeProcess((int)(20 + finished));
-                            }
-                            // Success
-                            writeInfo("Insert " + success + " students");
-                        }
-                        changeProcess(100);
+//                        try {
+//                            students = fileReslover.resolve();
+//                        } catch (test.demo.connect.FileResloveErrorException e) {
+//                            writeAndFlush(e.getMessage());
+//                        }
+//                        changeProcess(20);
+//                        if (students != null && students.size() != 0) {
+//                            int success = 0;
+//                            int worked = 0;
+//                            for (Staff student : students) {
+//                                mStudentOperation = StudentOperation.getInstance();
+//                                if (!mStudentOperation.insertStudent(student)){
+//                                    writeWarning("student :{" + student + "} exist!!!");
+//                                } else {
+//                                    success++;
+//                                }
+//                                worked++;
+//                                float finished = (float)worked/students.size() * 80;
+//                                changeProcess((int)(20 + finished));
+//                            }
+//                            // Success
+//                            writeInfo("Insert " + success + " students");
+//                        }
+//                        changeProcess(100);
                     } else {
                         writeError(RESULT_ERROR1);
                     }
