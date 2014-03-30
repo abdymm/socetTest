@@ -2,6 +2,7 @@ package test.demo.db;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
@@ -39,9 +40,10 @@ public abstract class Operation<T> {
 					Statement.RETURN_GENERATED_KEYS);
 			for (T t : insertValues) {
 				bindInsertValue(preparedStatement, t);
+				preparedStatement.addBatch();
 			}
 			preparedStatement.executeBatch();
-			mConnection.commit();
+			mConnection.commit();			
 		} catch (SQLException e) {
 			e.printStackTrace();
 			try {
@@ -57,8 +59,18 @@ public abstract class Operation<T> {
 		return true;
 	}
 
-	protected void update(String updateSql, T old, T newO)
-			throws SQLException {
+	protected ResultSet query(String querySql,String ... where) throws SQLException{
+		ResultSet resultSet = null;
+		PreparedStatement preparedStatement = null;
+		preparedStatement = getPreparedStatement(querySql,-1);
+		for (int index = 0;index < where.length;index++) {
+			preparedStatement.setString(index + 1, where[index]);
+		}
+		resultSet = preparedStatement.executeQuery();
+		return resultSet;
+	}
+
+	protected void update(String updateSql, T old, T newO) throws SQLException {
 		PreparedStatement preparedStatement = null;
 		preparedStatement = getPreparedStatement(updateSql,
 				Statement.RETURN_GENERATED_KEYS);

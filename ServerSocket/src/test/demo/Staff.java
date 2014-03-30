@@ -10,7 +10,7 @@ public class Staff {
 	private boolean mSex;
 	private String mDepartment;
 
-	public int getmId() {
+	public int getId() {
 		return mId;
 	}
 
@@ -56,4 +56,11 @@ public class Staff {
 					&& mDepartment.equals(student.getDepartment());
 		}
 	}
+
+	@Override
+	public String toString() {
+		return "Staff [mId=" + mId + ", mName=" + mName + ", mSex=" + mSex
+				+ ", mDepartment=" + mDepartment + "]";
+	}
+
 }

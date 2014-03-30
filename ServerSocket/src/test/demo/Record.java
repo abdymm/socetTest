@@ -1,6 +1,7 @@
 package test.demo;
 
 public class Record {
+	public static int LINE = 4;
 	private int mId;
 	private int mStaffId;
 	private String mStartTime;
